@@ -12,7 +12,9 @@ pub struct Task
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub del_time: Option<Date>,
     #[serde(default)]
-    pub repeat: bool
+    pub repeat: bool,
+    #[serde(default)]
+    pub visible: bool
 }
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct Config 
@@ -79,7 +81,8 @@ impl TryInto<Config> for Cli
                         file_path: self.file,
                         del_time: date,
                         del_time_interval: interval,
-                        repeat
+                        repeat,
+                        visible: self.visible
                     }
                 ]
             })

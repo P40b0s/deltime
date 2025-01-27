@@ -50,14 +50,23 @@ fn load_config()
 
 }
 
-fn progress_bar_for_interval(mpb: &MultiProgress, repeating: bool, len: u32) -> ProgressBar
+fn progress_bar_for_interval(mpb: &MultiProgress, repeating: bool, visible: bool, fp: &str, len: u32) -> ProgressBar
 {
     let pb = mpb.add(ProgressBar::new(len as u64));
+    let msg= if visible
+    {
+        [" -> ", fp].concat()
+    }
+    else
+    {
+        "".to_owned()
+    };
     pb.enable_steady_tick(Duration::from_millis(120));
+    pb.set_message(msg);
     let sty = if !repeating 
     {
         ProgressStyle::with_template(
-            "[{elapsed_precise}] {spinner:.blue} {bar:40.green/cyan} {pos:>0}/{len:3}",
+            "[{elapsed_precise}] {spinner:.blue} {bar:40.green/cyan} {pos:>0}/{len:>0} {msg}",
         )
         .unwrap()
         .tick_strings(&[
@@ -74,7 +83,7 @@ fn progress_bar_for_interval(mpb: &MultiProgress, repeating: bool, len: u32) -> 
     else
     {
         ProgressStyle::with_template(
-            "[{elapsed_precise}] {spinner:.red}   {bar:40.green/cyan} {pos:>0}/{len:3}",
+            "[{elapsed_precise}] {spinner:.red}   {bar:40.green/cyan} {pos:>0}/{len:>0} {msg}",
         )
         .unwrap()
         .tick_strings(&[
@@ -88,17 +97,23 @@ fn progress_bar_for_interval(mpb: &MultiProgress, repeating: bool, len: u32) -> 
             ])
         .progress_chars("●●∙")
     };
-    
     pb.with_style(sty)
     
 }
 
 
-fn progress_bar_for_datetime(mpb: &MultiProgress, _fp: &str, target_date: &Date, len: u32) -> ProgressBar
+fn progress_bar_for_datetime(mpb: &MultiProgress, visible: bool, fp: &str, target_date: &Date, len: u32) -> ProgressBar
 {
     let date = target_date.format(utilites::DateFormat::DotDate);
     let time = target_date.format(utilites::DateFormat::Time);
-    let msg= [&date, " ", &time].concat();
+    let msg= if visible
+    {
+        [&date, " ", &time, " -> ", fp].concat()
+    }
+    else
+    {
+        [&date, " ", &time].concat()
+    };
     let pb = mpb.add(ProgressBar::new(len as u64));
     pb.set_message(msg);
     pb.enable_steady_tick(Duration::from_millis(120));
@@ -136,14 +151,14 @@ fn run_process(cfg: Config)
         {
             if let Some(i) = t.del_time_interval.as_ref()
             {
-                let pb = progress_bar_for_interval(&mpb, t.repeat, *i);
+                let pb = progress_bar_for_interval(&mpb, t.repeat, t.visible, &t.file_path, *i);
                 tasks.push((t, pb)); 
             }
             if let Some(d) = t.del_time.as_ref()
             {
                 let now = Date::now();
                 let target = time_diff(&now, d);
-                let pb = progress_bar_for_datetime(&mpb, &t.file_path, d, target as u32);
+                let pb = progress_bar_for_datetime(&mpb, t.visible, &t.file_path, d, target as u32);
                 tasks.push((t, pb)); 
             }
         }
@@ -274,28 +289,32 @@ mod tests
                     file_path: "/hard/xar/projects/tests/1".to_owned(),
                     del_time_interval: Some(2),
                     del_time: None,
-                    repeat: false
+                    repeat: false,
+                    visible: true
                 },
                 Task
                 {
                     file_path: "/hard/xar/projects/tests/2".to_owned(),
                     del_time_interval: None,
                     del_time: Some(Date::now().add_minutes(3)),
-                    repeat: false
+                    repeat: false,
+                    visible: true
                 },
                 Task
                 {
                     file_path: "/hard/xar/projects/tests/3".to_owned(),
                     del_time_interval: None,
                     del_time: Some(Date::now().add_minutes(6)),
-                    repeat: false
+                    repeat: false,
+                    visible: true
                 },
                 Task
                 {
                     file_path: "/hard/xar/projects/tests/4".to_owned(),
                     del_time_interval: Some(2),
                     del_time: None,
-                    repeat: true
+                    repeat: true,
+                    visible: false
                 },
             ]
         };

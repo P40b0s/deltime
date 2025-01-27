@@ -13,12 +13,19 @@ pub struct Cli
   #[arg(help="Интервал удаления в минутах")]
   pub interval: Option<u32>,
   #[arg(short = 'r')]
+  #[arg(default_value="false")]
   #[arg(help="Повтор задачи, только если задан интервал")]
   pub repeat: bool,
   #[arg(long = "date")]
   #[arg(short = 'd')]
   #[arg(help="Время удаления в формате 2022-10-26T13:23:52")]
   pub date: Option<String>,
+  #[arg(long = "visible")]
+  #[arg(short = 'v')]
+  #[arg(help="Отображать имя файла в процессах")]
+  #[arg(default_value="false")]
+  pub visible: bool,
+
 }
 
 impl Cli
