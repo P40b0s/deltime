@@ -31,5 +31,8 @@ repeat = true
 `-i` интервал удаления в минутах (опционально, либо параметр -d)  
 `-d` точная дата удаления в формате "2025-01-27T16:42:50"  
 `-r` повторять процесс удаления бесконечно, если установлен флаг -i  
+`-f "/hard/x/projects/tests/1" -d "2025-01-27T11:52:00"`  
+`-f "/hard/x/projects/tests/1" -i 10`  
+`-f "/hard/x/projects/tests/1" -i 10 -r`  
 [Linux](https://github.com/P40b0s/deltime/releases/download/v0.1.0/deltime)  
 [Windows](https://github.com/P40b0s/deltime/releases/download/v0.1.0/deltime.exe)
