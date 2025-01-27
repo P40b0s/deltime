@@ -3,24 +3,24 @@
 ``` toml
 [[tasks]]
 #абсолютный путь к файлу
-file_path = "/hard/xar/projects/tests/1"
+file_path = "/hard/x/projects/tests/1"
 #интервал удаления в минутах после запуска программы
 del_time_interval = 2
 repeat = false
 
 [[tasks]]
-file_path = "/hard/xar/projects/tests/2"
+file_path = "/hard/x/projects/tests/2"
 #или указать нужную дату со временем в формате
 del_time = "2025-01-27T16:39:50"
 repeat = false
 
 [[tasks]]
-file_path = "/hard/xar/projects/tests/3"
+file_path = "/hard/x/projects/tests/3"
 del_time = "2025-01-27T16:42:50"
 repeat = false
 
 [[tasks]]
-file_path = "/hard/xar/projects/tests/4"
+file_path = "/hard/x/projects/tests/4"
 del_time_interval = 2
 #повторять удаление файла через N минут, работает только со свойством del_time_interval
 repeat = true
