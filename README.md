@@ -1,5 +1,5 @@
 ### Консольная утилита для запланированного удаления файлов
-![Снимок экрана от 2025-01-27 17-19-57](https://github.com/user-attachments/assets/25787f71-0d22-44f5-a284-7fcaf6a327d1)
+![screen](https://github.com/user-attachments/assets/25787f71-0d22-44f5-a284-7fcaf6a327d1)
 
 #### Использование с файлом конфигурации config.toml:  
 ``` toml
