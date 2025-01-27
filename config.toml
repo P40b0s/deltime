@@ -1,0 +1,19 @@
+[[tasks]]
+file_path = "/hard/xar/projects/tests/1"
+del_time_interval = 2
+repeat = false
+
+[[tasks]]
+file_path = "/hard/xar/projects/tests/2"
+del_time = "2025-01-27T16:39:50"
+repeat = false
+
+[[tasks]]
+file_path = "/hard/xar/projects/tests/3"
+del_time = "2025-01-27T16:42:50"
+repeat = false
+
+[[tasks]]
+file_path = "/hard/xar/projects/tests/4"
+del_time_interval = 2
+repeat = true

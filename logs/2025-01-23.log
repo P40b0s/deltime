@@ -1,0 +1,14 @@
+[23-01-2025 16:52:38]-[deltime::tests:67]:💬 Информация -> Err(TomlDeserializeError(Error { inner: Error { inner: TomlError { message: "missing field `del_time`", raw: Some("[[tasks]]\nfile_path = \"file1\"\ndel_time_interval = 120\nrepeat = false\n\n[[tasks]]\nfile_path = \"file2\"\ndel_time = \"2025-01-23T18:48:55\"\nrepeat = true\n"), keys: ["tasks"], span: Some(0..68) } } }))
+[23-01-2025 16:54:56]-[deltime::tests:67]:💬 Информация -> Err(TomlDeserializeError(Error { inner: Error { inner: TomlError { message: "invalid type: string \"2025-01-23T18:48:55\", expected a borrowed string", raw: Some("[[tasks]]\nfile_path = \"file1\"\ndel_time_interval = 120\nrepeat = false\n\n[[tasks]]\nfile_path = \"file2\"\ndel_time = \"2025-01-23T18:48:55\"\nrepeat = true\n"), keys: ["tasks", "del_time"], span: Some(111..132) } } }))
+[23-01-2025 16:55:56]-[deltime::tests:67]:💬 Информация -> Ok(Config { tasks: [Task { file_path: "file1", del_time_interval: Some(120), del_time: None, repeat: false }, Task { file_path: "file2", del_time_interval: None, del_time: Some(Date(2025-01-23T18:48:55)), repeat: true }] })
+[23-01-2025 17:16:19]-[utilites::dates:419]:💬 Информация -> 0 0, 100%  🔍[/home/phobos/.cargo/git/checkouts/help_utilites-ee5bbfe7640c8dd5/6601da6/src/dates.rs/diff():419]
+[23-01-2025 17:16:19]-[deltime::tests:113]:💬 Информация -> Diff { days: 0.0, days_left: 0.0, progress: 100 }
+[23-01-2025 17:16:33]-[utilites::dates:419]:💬 Информация -> 0 0, 100%  🔍[/home/phobos/.cargo/git/checkouts/help_utilites-ee5bbfe7640c8dd5/6601da6/src/dates.rs/diff():419]
+[23-01-2025 17:16:33]-[deltime::tests:113]:💬 Информация -> Diff { days: 0.0, days_left: 0.0, progress: 100 }
+[23-01-2025 17:16:44]-[utilites::dates:419]:💬 Информация -> 0 0, 0%  🔍[/home/phobos/.cargo/git/checkouts/help_utilites-ee5bbfe7640c8dd5/6601da6/src/dates.rs/diff():419]
+[23-01-2025 17:16:44]-[deltime::tests:113]:💬 Информация -> Diff { days: 0.0, days_left: 0.0, progress: 0 }
+[23-01-2025 17:21:03]-[deltime::tests:118]:💬 Информация -> -60
+[23-01-2025 17:21:18]-[deltime::tests:118]:💬 Информация -> 60
+[23-01-2025 17:22:24]-[deltime::tests:118]:💬 Информация -> 60
+[23-01-2025 17:23:00]-[deltime::tests:118]:💬 Информация -> -60
+[23-01-2025 17:23:44]-[deltime::tests:119]:💬 Информация -> 60
