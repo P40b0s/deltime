@@ -1,8 +1,10 @@
 mod cli;
 mod structs;
+mod progressbars;
 use std::time::Duration;
 use cli::Cli;
-use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
+use indicatif::MultiProgress;
+use progressbars::{progress_bar_for_datetime, progress_bar_for_interval};
 use structs::Config;
 use utilites::Date;
 const FILE_NAME: &str = "config.toml";
@@ -48,96 +50,6 @@ fn load_config()
         }
     }
 
-}
-
-fn progress_bar_for_interval(mpb: &MultiProgress, repeating: bool, visible: bool, fp: &str, len: u32) -> ProgressBar
-{
-    let pb = mpb.add(ProgressBar::new(len as u64));
-    let msg= if visible
-    {
-        [" -> ", fp].concat()
-    }
-    else
-    {
-        "".to_owned()
-    };
-    pb.enable_steady_tick(Duration::from_millis(120));
-    pb.set_message(msg);
-    let sty = if !repeating 
-    {
-        ProgressStyle::with_template(
-            "[{elapsed_precise}] {spinner:.blue} {bar:40.green/cyan} {pos:>0}/{len:>0} {msg}",
-        )
-        .unwrap()
-        .tick_strings(&[
-            "▹▹▹▹▹",
-            "▸▹▹▹▹",
-            "▹▸▹▹▹",
-            "▹▹▸▹▹",
-            "▹▹▹▸▹",
-            "▹▹▹▹▸",
-            "✅   ",
-            ])
-        .progress_chars("●●∙")
-    }
-    else
-    {
-        ProgressStyle::with_template(
-            "[{elapsed_precise}] {spinner:.red}   {bar:40.green/cyan} {pos:>0}/{len:>0} {msg}",
-        )
-        .unwrap()
-        .tick_strings(&[
-            "∙∙∙",
-			"●∙∙",
-			"∙●∙",
-			"∙∙●",
-            "∙●∙",
-			"●∙∙",
-			"✅ "
-            ])
-        .progress_chars("●●∙")
-    };
-    pb.with_style(sty)
-    
-}
-
-
-fn progress_bar_for_datetime(mpb: &MultiProgress, visible: bool, fp: &str, target_date: &Date, len: u32) -> ProgressBar
-{
-    let date = target_date.format(utilites::DateFormat::DotDate);
-    let time = target_date.format(utilites::DateFormat::Time);
-    let msg= if visible
-    {
-        [&date, " ", &time, " -> ", fp].concat()
-    }
-    else
-    {
-        [&date, " ", &time].concat()
-    };
-    let pb = mpb.add(ProgressBar::new(len as u64));
-    pb.set_message(msg);
-    pb.enable_steady_tick(Duration::from_millis(120));
-    let sty = ProgressStyle::with_template(
-        "[{elapsed_precise}] {spinner:.blue}    {bar:40.green/cyan} [{msg}]",
-    )
-    .unwrap()
-    .tick_strings(&[
-            "🕛",
-			"🕐",
-			"🕑",
-			"🕒",
-			"🕓",
-			"🕔",
-			"🕕",
-			"🕖",
-			"🕗",
-			"🕘",
-			"🕙",
-			"🕚",
-            "✅"
-    ])
-    .progress_chars("●●∙");
-    pb.with_style(sty)
 }
 
 fn run_process(cfg: Config)
@@ -190,6 +102,11 @@ fn run_process(cfg: Config)
                         if del_file(&t.0.file_path) && !t.0.repeat
                         {
                             del_tasks.push(t.0.file_path.clone());
+                            t.1.set_prefix("✅");
+                        }
+                        else 
+                        {
+                            t.1.set_prefix("❌");
                         }
                     }
                 }
@@ -202,8 +119,13 @@ fn run_process(cfg: Config)
                 {
                     if del_file(&t.0.file_path)
                     {
-                        t.1.finish();
+                        t.1.set_prefix("✅");
                         del_tasks.push(t.0.file_path.clone());
+                        t.1.finish();
+                    }
+                    else 
+                    {
+                        t.1.set_prefix("❌");
                     }
                 }
                 else 
@@ -234,17 +156,36 @@ fn time_diff(current_date: &Date, checked_date: &Date) -> i64
 
 fn del_file(path: &str) -> bool
 {
-    let del = std::fs::remove_file(path);
-    if del.is_ok()
+    let metadata = std::fs::metadata(path);
+    if let Ok(md) = metadata
     {
-        //println!("Файл {} удален", path);
-        true
+        if md.is_file()
+        {
+            let del = std::fs::remove_file(path);
+            return if del.is_ok()
+            {
+                true
+            }
+            else 
+            {
+                false
+            };
+        }
+        if md.is_dir()
+        {
+            let del = std::fs::remove_dir_all(path);
+            return if del.is_ok()
+            {
+                true
+            }
+            else 
+            {
+                false
+            };
+        }
     }
-    else 
-    {
-        //println!("Ошибка удаления файла {} ", path);
-        false
-    }
+    return false;
+    
 }
 
 
@@ -281,6 +222,7 @@ mod tests
         let _ = std::fs::File::create_new("/hard/xar/projects/tests/2");
         let _ = std::fs::File::create_new("/hard/xar/projects/tests/3");
         let _ = std::fs::File::create_new("/hard/xar/projects/tests/4");
+        let _ = std::fs::create_dir("/hard/xar/projects/tests/5");
         let cfg = Config
         {
                 tasks: vec![
@@ -315,6 +257,14 @@ mod tests
                     del_time: None,
                     repeat: true,
                     visible: false
+                },
+                Task
+                {
+                    file_path: "/hard/xar/projects/tests/5".to_owned(),
+                    del_time_interval: Some(1),
+                    del_time: None,
+                    repeat: false,
+                    visible: true
                 },
             ]
         };
