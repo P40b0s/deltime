@@ -1,6 +1,7 @@
 mod cli;
 mod structs;
 mod progressbars;
+mod usb;
 use std::time::Duration;
 use cli::Cli;
 use indicatif::MultiProgress;
@@ -17,6 +18,7 @@ fn main()
 
 fn load_config()
 {
+    
     if let Some(args_config) = Cli::parse_args()
     {
         let cfg: Result<Config, String> = args_config.try_into();
