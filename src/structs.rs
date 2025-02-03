@@ -2,6 +2,13 @@ use super::cli::Cli;
 use serde::{Deserialize, Serialize};
 use utilites::Date;
 
+pub trait DeleteTaskTrait
+{
+    fn get_path(&self) -> &str;
+    fn get_date(&self) -> &Option<Date>;
+    fn get_interval(&self) -> Option<u32>;
+}
+
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct Task
 {
@@ -16,6 +23,7 @@ pub struct Task
     #[serde(default)]
     pub visible: bool
 }
+
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct Config 
 {

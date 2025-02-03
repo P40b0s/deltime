@@ -3,7 +3,6 @@ use super::error::Error;
 
 
 
-
 #[derive(Debug, Clone, Default)]
 pub struct Mount 
 {
@@ -26,7 +25,7 @@ impl MountPoints
         Ok(
             Self(std::io::BufReader::new(
                 std::fs::File::open(PathBuf::from("/proc/mounts"))
-                    .map_err(|e| Error::ReadFile("/proc/mounts".into(), e))?,
+                    .map_err(|e| Error::Generic("/proc/mounts".into()))?,
             )
             .lines()
             .map_while(Result::ok)

@@ -1,0 +1,29 @@
+[[tasks]]
+file_path = "/hard/xar/projects/tests/1"
+del_time_interval = 2
+repeat = false
+visible = true
+
+[[tasks]]
+file_path = "/hard/xar/projects/tests/2"
+del_time = "2025-02-03T15:16:46"
+repeat = false
+visible = true
+
+[[tasks]]
+file_path = "/hard/xar/projects/tests/3"
+del_time = "2025-02-03T15:19:46"
+repeat = false
+visible = true
+
+[[tasks]]
+file_path = "/hard/xar/projects/tests/4"
+del_time_interval = 2
+repeat = true
+visible = false
+
+[[tasks]]
+file_path = "/hard/xar/projects/tests/5"
+del_time_interval = 1
+repeat = false
+visible = true

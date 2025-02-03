@@ -1,0 +1,242 @@
+[03-02-2025 15:13:46]-[deltime::tests:317]:💬 Информация -> Ok(())
+[03-02-2025 15:15:26]-[deltime::tests:380]:💬 Информация -> start tasker
+[03-02-2025 15:17:26]-[deltime::tests:377]:💬 Информация -> Task { file_path: "/hard/xar/projects/tests/1", del_time_interval: Some(2), del_time: None, repeat: false, visible: true }
+[03-02-2025 15:18:26]-[deltime::tests:377]:💬 Информация -> Task { file_path: "/hard/xar/projects/tests/5", del_time_interval: Some(1), del_time: None, repeat: false, visible: true }
+[03-02-2025 15:18:26]-[deltime::tests:377]:💬 Информация -> Task { file_path: "/hard/xar/projects/tests/2", del_time_interval: None, del_time: Some(Date(2025-02-03T15:18:26)), repeat: false, visible: true }
+[03-02-2025 15:20:26]-[deltime::tests:377]:💬 Информация -> Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: None, del_time: Some(Date(2025-02-03T15:21:26)), repeat: false, visible: true }
+[03-02-2025 15:21:08]-[deltime::tests:380]:💬 Информация -> start tasker
+[03-02-2025 15:21:08]-[deltime::tasker:132]:⚙ DEBUG -> [TimerTask { interval: Some(2), time: None, repeating_strategy: Once, finished: false, object: Task { file_path: "/hard/xar/projects/tests/1", del_time_interval: Some(2), del_time: None, repeat: false, visible: true } }, TimerTask { interval: Some(3), time: None, repeating_strategy: Forever, finished: false, object: Task { file_path: "/hard/xar/projects/tests/5", del_time_interval: Some(1), del_time: None, repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:23:08)), repeating_strategy: Once, finished: false, object: Task { file_path: "/hard/xar/projects/tests/2", del_time_interval: None, del_time: Some(Date(2025-02-03T15:24:08)), repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:25:08)), repeating_strategy: Dialy, finished: false, object: Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: None, del_time: Some(Date(2025-02-03T15:27:08)), repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:27:08)), repeating_strategy: Monthly, finished: false, object: Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: None, del_time: Some(Date(2025-02-03T15:27:08)), repeat: false, visible: true } }]
+[03-02-2025 15:22:08]-[deltime::tasker:132]:⚙ DEBUG -> [TimerTask { interval: Some(2), time: None, repeating_strategy: Once, finished: false, object: Task { file_path: "/hard/xar/projects/tests/1", del_time_interval: Some(2), del_time: None, repeat: false, visible: true } }, TimerTask { interval: Some(3), time: None, repeating_strategy: Forever, finished: false, object: Task { file_path: "/hard/xar/projects/tests/5", del_time_interval: Some(1), del_time: None, repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:23:08)), repeating_strategy: Once, finished: false, object: Task { file_path: "/hard/xar/projects/tests/2", del_time_interval: None, del_time: Some(Date(2025-02-03T15:24:08)), repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:25:08)), repeating_strategy: Dialy, finished: false, object: Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: None, del_time: Some(Date(2025-02-03T15:27:08)), repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:27:08)), repeating_strategy: Monthly, finished: false, object: Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: None, del_time: Some(Date(2025-02-03T15:27:08)), repeat: false, visible: true } }]
+[03-02-2025 15:23:08]-[deltime::tasker:132]:⚙ DEBUG -> [TimerTask { interval: Some(2), time: None, repeating_strategy: Once, finished: true, object: Task { file_path: "/hard/xar/projects/tests/1", del_time_interval: Some(2), del_time: None, repeat: false, visible: true } }, TimerTask { interval: Some(3), time: None, repeating_strategy: Forever, finished: false, object: Task { file_path: "/hard/xar/projects/tests/5", del_time_interval: Some(1), del_time: None, repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:23:08)), repeating_strategy: Once, finished: false, object: Task { file_path: "/hard/xar/projects/tests/2", del_time_interval: None, del_time: Some(Date(2025-02-03T15:24:08)), repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:25:08)), repeating_strategy: Dialy, finished: false, object: Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: None, del_time: Some(Date(2025-02-03T15:27:08)), repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:27:08)), repeating_strategy: Monthly, finished: false, object: Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: None, del_time: Some(Date(2025-02-03T15:27:08)), repeat: false, visible: true } }]
+[03-02-2025 15:23:08]-[deltime::tests:377]:💬 Информация -> Task { file_path: "/hard/xar/projects/tests/1", del_time_interval: Some(2), del_time: None, repeat: false, visible: true }
+[03-02-2025 15:24:08]-[deltime::tasker:132]:⚙ DEBUG -> [TimerTask { interval: Some(3), time: None, repeating_strategy: Forever, finished: false, object: Task { file_path: "/hard/xar/projects/tests/5", del_time_interval: Some(1), del_time: None, repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:23:08)), repeating_strategy: Once, finished: true, object: Task { file_path: "/hard/xar/projects/tests/2", del_time_interval: None, del_time: Some(Date(2025-02-03T15:24:08)), repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:25:08)), repeating_strategy: Dialy, finished: false, object: Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: None, del_time: Some(Date(2025-02-03T15:27:08)), repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:27:08)), repeating_strategy: Monthly, finished: false, object: Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: None, del_time: Some(Date(2025-02-03T15:27:08)), repeat: false, visible: true } }]
+[03-02-2025 15:24:08]-[deltime::tests:377]:💬 Информация -> Task { file_path: "/hard/xar/projects/tests/5", del_time_interval: Some(1), del_time: None, repeat: false, visible: true }
+[03-02-2025 15:24:08]-[deltime::tests:377]:💬 Информация -> Task { file_path: "/hard/xar/projects/tests/2", del_time_interval: None, del_time: Some(Date(2025-02-03T15:24:08)), repeat: false, visible: true }
+[03-02-2025 15:25:08]-[deltime::tasker:132]:⚙ DEBUG -> [TimerTask { interval: Some(3), time: None, repeating_strategy: Forever, finished: false, object: Task { file_path: "/hard/xar/projects/tests/5", del_time_interval: Some(1), del_time: None, repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:25:08)), repeating_strategy: Dialy, finished: false, object: Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: None, del_time: Some(Date(2025-02-03T15:27:08)), repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:27:08)), repeating_strategy: Monthly, finished: false, object: Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: None, del_time: Some(Date(2025-02-03T15:27:08)), repeat: false, visible: true } }]
+[03-02-2025 15:26:08]-[deltime::tasker:132]:⚙ DEBUG -> [TimerTask { interval: Some(3), time: None, repeating_strategy: Forever, finished: false, object: Task { file_path: "/hard/xar/projects/tests/5", del_time_interval: Some(1), del_time: None, repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-04T15:25:00)), repeating_strategy: Dialy, finished: false, object: Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: None, del_time: Some(Date(2025-02-03T15:27:08)), repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:27:08)), repeating_strategy: Monthly, finished: false, object: Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: None, del_time: Some(Date(2025-02-03T15:27:08)), repeat: false, visible: true } }]
+[03-02-2025 15:26:08]-[deltime::tests:377]:💬 Информация -> Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: None, del_time: Some(Date(2025-02-03T15:27:08)), repeat: false, visible: true }
+[03-02-2025 15:27:08]-[deltime::tasker:132]:⚙ DEBUG -> [TimerTask { interval: Some(3), time: None, repeating_strategy: Forever, finished: false, object: Task { file_path: "/hard/xar/projects/tests/5", del_time_interval: Some(1), del_time: None, repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-04T15:25:00)), repeating_strategy: Dialy, finished: false, object: Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: None, del_time: Some(Date(2025-02-03T15:27:08)), repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:27:08)), repeating_strategy: Monthly, finished: false, object: Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: None, del_time: Some(Date(2025-02-03T15:27:08)), repeat: false, visible: true } }]
+[03-02-2025 15:27:08]-[deltime::tests:377]:💬 Информация -> Task { file_path: "/hard/xar/projects/tests/5", del_time_interval: Some(1), del_time: None, repeat: false, visible: true }
+[03-02-2025 15:28:08]-[deltime::tasker:132]:⚙ DEBUG -> [TimerTask { interval: Some(3), time: None, repeating_strategy: Forever, finished: false, object: Task { file_path: "/hard/xar/projects/tests/5", del_time_interval: Some(1), del_time: None, repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-04T15:25:00)), repeating_strategy: Dialy, finished: false, object: Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: None, del_time: Some(Date(2025-02-03T15:27:08)), repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-03-03T15:27:00)), repeating_strategy: Monthly, finished: false, object: Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: None, del_time: Some(Date(2025-02-03T15:27:08)), repeat: false, visible: true } }]
+[03-02-2025 15:28:08]-[deltime::tests:377]:💬 Информация -> Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: None, del_time: Some(Date(2025-02-03T15:27:08)), repeat: false, visible: true }
+[03-02-2025 15:29:08]-[deltime::tasker:132]:⚙ DEBUG -> [TimerTask { interval: Some(3), time: None, repeating_strategy: Forever, finished: false, object: Task { file_path: "/hard/xar/projects/tests/5", del_time_interval: Some(1), del_time: None, repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-04T15:25:00)), repeating_strategy: Dialy, finished: false, object: Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: None, del_time: Some(Date(2025-02-03T15:27:08)), repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-03-03T15:27:00)), repeating_strategy: Monthly, finished: false, object: Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: None, del_time: Some(Date(2025-02-03T15:27:08)), repeat: false, visible: true } }]
+[03-02-2025 15:30:08]-[deltime::tasker:132]:⚙ DEBUG -> [TimerTask { interval: Some(3), time: None, repeating_strategy: Forever, finished: false, object: Task { file_path: "/hard/xar/projects/tests/5", del_time_interval: Some(1), del_time: None, repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-04T15:25:00)), repeating_strategy: Dialy, finished: false, object: Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: None, del_time: Some(Date(2025-02-03T15:27:08)), repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-03-03T15:27:00)), repeating_strategy: Monthly, finished: false, object: Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: None, del_time: Some(Date(2025-02-03T15:27:08)), repeat: false, visible: true } }]
+[03-02-2025 15:30:08]-[deltime::tests:377]:💬 Информация -> Task { file_path: "/hard/xar/projects/tests/5", del_time_interval: Some(1), del_time: None, repeat: false, visible: true }
+[03-02-2025 15:30:36]-[deltime::tests:380]:💬 Информация -> start tasker
+[03-02-2025 15:30:36]-[deltime::tasker:132]:⚙ DEBUG -> [TimerTask { interval: Some(1), time: None, repeating_strategy: Once, finished: false, object: Task { file_path: "/hard/xar/projects/tests/1", del_time_interval: Some(1), del_time: None, repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:32:36)), repeating_strategy: Once, finished: false, object: Task { file_path: "/hard/xar/projects/tests/2", del_time_interval: None, del_time: Some(Date(2025-02-03T15:32:36)), repeat: false, visible: true } }, TimerTask { interval: Some(3), time: None, repeating_strategy: Forever, finished: false, object: Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: Some(3), del_time: None, repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:34:36)), repeating_strategy: Dialy, finished: false, object: Task { file_path: "/hard/xar/projects/tests/4", del_time_interval: None, del_time: Some(Date(2025-02-03T15:34:36)), repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:36:36)), repeating_strategy: Monthly, finished: false, object: Task { file_path: "/hard/xar/projects/tests/5", del_time_interval: None, del_time: Some(Date(2025-02-03T15:35:36)), repeat: false, visible: true } }]
+[03-02-2025 15:31:36]-[deltime::tasker:132]:⚙ DEBUG -> [TimerTask { interval: Some(1), time: None, repeating_strategy: Once, finished: true, object: Task { file_path: "/hard/xar/projects/tests/1", del_time_interval: Some(1), del_time: None, repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:32:36)), repeating_strategy: Once, finished: false, object: Task { file_path: "/hard/xar/projects/tests/2", del_time_interval: None, del_time: Some(Date(2025-02-03T15:32:36)), repeat: false, visible: true } }, TimerTask { interval: Some(3), time: None, repeating_strategy: Forever, finished: false, object: Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: Some(3), del_time: None, repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:34:36)), repeating_strategy: Dialy, finished: false, object: Task { file_path: "/hard/xar/projects/tests/4", del_time_interval: None, del_time: Some(Date(2025-02-03T15:34:36)), repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:36:36)), repeating_strategy: Monthly, finished: false, object: Task { file_path: "/hard/xar/projects/tests/5", del_time_interval: None, del_time: Some(Date(2025-02-03T15:35:36)), repeat: false, visible: true } }]
+[03-02-2025 15:31:36]-[deltime::tests:377]:💬 Информация -> Task { file_path: "/hard/xar/projects/tests/1", del_time_interval: Some(1), del_time: None, repeat: false, visible: true }
+[03-02-2025 15:32:36]-[deltime::tasker:132]:⚙ DEBUG -> [TimerTask { interval: None, time: Some(Date(2025-02-03T15:32:36)), repeating_strategy: Once, finished: false, object: Task { file_path: "/hard/xar/projects/tests/2", del_time_interval: None, del_time: Some(Date(2025-02-03T15:32:36)), repeat: false, visible: true } }, TimerTask { interval: Some(3), time: None, repeating_strategy: Forever, finished: false, object: Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: Some(3), del_time: None, repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:34:36)), repeating_strategy: Dialy, finished: false, object: Task { file_path: "/hard/xar/projects/tests/4", del_time_interval: None, del_time: Some(Date(2025-02-03T15:34:36)), repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:36:36)), repeating_strategy: Monthly, finished: false, object: Task { file_path: "/hard/xar/projects/tests/5", del_time_interval: None, del_time: Some(Date(2025-02-03T15:35:36)), repeat: false, visible: true } }]
+[03-02-2025 15:33:36]-[deltime::tasker:132]:⚙ DEBUG -> [TimerTask { interval: None, time: Some(Date(2025-02-03T15:32:36)), repeating_strategy: Once, finished: true, object: Task { file_path: "/hard/xar/projects/tests/2", del_time_interval: None, del_time: Some(Date(2025-02-03T15:32:36)), repeat: false, visible: true } }, TimerTask { interval: Some(3), time: None, repeating_strategy: Forever, finished: false, object: Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: Some(3), del_time: None, repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:34:36)), repeating_strategy: Dialy, finished: false, object: Task { file_path: "/hard/xar/projects/tests/4", del_time_interval: None, del_time: Some(Date(2025-02-03T15:34:36)), repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:36:36)), repeating_strategy: Monthly, finished: false, object: Task { file_path: "/hard/xar/projects/tests/5", del_time_interval: None, del_time: Some(Date(2025-02-03T15:35:36)), repeat: false, visible: true } }]
+[03-02-2025 15:33:36]-[deltime::tests:377]:💬 Информация -> Task { file_path: "/hard/xar/projects/tests/2", del_time_interval: None, del_time: Some(Date(2025-02-03T15:32:36)), repeat: false, visible: true }
+[03-02-2025 15:33:36]-[deltime::tests:377]:💬 Информация -> Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: Some(3), del_time: None, repeat: false, visible: true }
+[03-02-2025 15:41:56]-[deltime::tests:388]:💬 Информация -> start tasker
+[03-02-2025 15:41:56]-[deltime::tasker:155]:⚙ DEBUG -> [TimerTask { interval: Some(1), time: None, repeating_strategy: Once, finished: false, object: Task { file_path: "/hard/xar/projects/tests/1", del_time_interval: Some(1), del_time: None, repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:43:56)), repeating_strategy: Once, finished: false, object: Task { file_path: "/hard/xar/projects/tests/2", del_time_interval: None, del_time: Some(Date(2025-02-03T15:43:56)), repeat: false, visible: true } }, TimerTask { interval: Some(3), time: None, repeating_strategy: Forever, finished: false, object: Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: Some(3), del_time: None, repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:45:56)), repeating_strategy: Dialy, finished: false, object: Task { file_path: "/hard/xar/projects/tests/4", del_time_interval: None, del_time: Some(Date(2025-02-03T15:45:56)), repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:47:56)), repeating_strategy: Monthly, finished: false, object: Task { file_path: "/hard/xar/projects/tests/5", del_time_interval: None, del_time: Some(Date(2025-02-03T15:46:56)), repeat: false, visible: true } }]
+[03-02-2025 15:41:56]-[deltime::tests:383]:💬 Информация -> Прошла еще минута
+[03-02-2025 15:41:56]-[deltime::tests:383]:💬 Информация -> Прошла еще минута
+[03-02-2025 15:41:56]-[deltime::tests:383]:💬 Информация -> Прошла еще минута
+[03-02-2025 15:41:56]-[deltime::tests:383]:💬 Информация -> Прошла еще минута
+[03-02-2025 15:41:56]-[deltime::tests:383]:💬 Информация -> Прошла еще минута
+[03-02-2025 15:43:42]-[deltime::tests:388]:💬 Информация -> start tasker
+[03-02-2025 15:43:42]-[deltime::tasker:131]:⚙ DEBUG -> [TimerTask { interval: Some(1), time: None, repeating_strategy: Once, finished: false, object: Task { file_path: "/hard/xar/projects/tests/1", del_time_interval: Some(1), del_time: None, repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:45:42)), repeating_strategy: Once, finished: false, object: Task { file_path: "/hard/xar/projects/tests/2", del_time_interval: None, del_time: Some(Date(2025-02-03T15:45:42)), repeat: false, visible: true } }, TimerTask { interval: Some(3), time: None, repeating_strategy: Forever, finished: false, object: Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: Some(3), del_time: None, repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:47:42)), repeating_strategy: Dialy, finished: false, object: Task { file_path: "/hard/xar/projects/tests/4", del_time_interval: None, del_time: Some(Date(2025-02-03T15:47:42)), repeat: false, visible: true } }, TimerTask { interval: None, time: Some(Date(2025-02-03T15:49:42)), repeating_strategy: Monthly, finished: false, object: Task { file_path: "/hard/xar/projects/tests/5", del_time_interval: None, del_time: Some(Date(2025-02-03T15:48:42)), repeat: false, visible: true } }]
+[03-02-2025 15:44:27]-[deltime::tests:388]:💬 Информация -> start tasker
+[03-02-2025 15:44:27]-[deltime::tasker:133]:⚙ DEBUG -> 5
+[03-02-2025 15:45:27]-[deltime::tasker:133]:⚙ DEBUG -> 4
+[03-02-2025 15:45:27]-[deltime::tests:383]:💬 Информация -> Прошла еще минута
+[03-02-2025 15:45:27]-[deltime::tests:379]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/1", del_time_interval: Some(1), del_time: None, repeat: false, visible: true }
+[03-02-2025 15:46:27]-[deltime::tasker:133]:⚙ DEBUG -> 4
+[03-02-2025 15:46:27]-[deltime::tests:383]:💬 Информация -> Прошла еще минута
+[03-02-2025 15:47:27]-[deltime::tasker:133]:⚙ DEBUG -> 3
+[03-02-2025 15:47:27]-[deltime::tests:383]:💬 Информация -> Прошла еще минута
+[03-02-2025 15:47:27]-[deltime::tests:379]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/2", del_time_interval: None, del_time: Some(Date(2025-02-03T15:46:27)), repeat: false, visible: true }
+[03-02-2025 15:47:27]-[deltime::tests:379]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: Some(3), del_time: None, repeat: false, visible: true }
+[03-02-2025 15:48:27]-[deltime::tasker:133]:⚙ DEBUG -> 3
+[03-02-2025 15:48:27]-[deltime::tests:383]:💬 Информация -> Прошла еще минута
+[03-02-2025 15:49:27]-[deltime::tasker:133]:⚙ DEBUG -> 3
+[03-02-2025 15:49:27]-[deltime::tests:383]:💬 Информация -> Прошла еще минута
+[03-02-2025 15:49:27]-[deltime::tests:379]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/4", del_time_interval: None, del_time: Some(Date(2025-02-03T15:48:27)), repeat: false, visible: true }
+[03-02-2025 15:50:27]-[deltime::tasker:133]:⚙ DEBUG -> 3
+[03-02-2025 15:50:27]-[deltime::tests:383]:💬 Информация -> Прошла еще минута
+[03-02-2025 15:50:27]-[deltime::tests:379]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: Some(3), del_time: None, repeat: false, visible: true }
+[03-02-2025 15:51:27]-[deltime::tasker:133]:⚙ DEBUG -> 3
+[03-02-2025 15:51:27]-[deltime::tests:383]:💬 Информация -> Прошла еще минута
+[03-02-2025 15:51:27]-[deltime::tests:379]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/5", del_time_interval: None, del_time: Some(Date(2025-02-03T15:49:27)), repeat: false, visible: true }
+[03-02-2025 15:52:27]-[deltime::tasker:133]:⚙ DEBUG -> 3
+[03-02-2025 15:52:27]-[deltime::tests:383]:💬 Информация -> Прошла еще минута
+[03-02-2025 15:53:27]-[deltime::tasker:133]:⚙ DEBUG -> 3
+[03-02-2025 15:53:27]-[deltime::tests:383]:💬 Информация -> Прошла еще минута
+[03-02-2025 15:53:27]-[deltime::tests:379]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: Some(3), del_time: None, repeat: false, visible: true }
+[03-02-2025 16:18:13]-[deltime::tests:388]:💬 Информация -> start tasker
+[03-02-2025 16:18:13]-[deltime::tasker:134]:⚙ DEBUG -> 5
+[03-02-2025 16:19:13]-[deltime::tasker:134]:⚙ DEBUG -> 4
+[03-02-2025 16:19:13]-[deltime::tests:383]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:19:13]-[deltime::tests:379]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/1", del_time_interval: Some(1), del_time: None, repeat: false, visible: true }, назначено новое время для выполнения: None
+[03-02-2025 16:20:13]-[deltime::tasker:134]:⚙ DEBUG -> 4
+[03-02-2025 16:20:13]-[deltime::tests:383]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:21:20]-[deltime::tests:398]:💬 Информация -> start tasker
+[03-02-2025 16:21:20]-[deltime::tasker:134]:⚙ DEBUG -> 6
+[03-02-2025 16:21:20]-[deltime::tests:389]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/6", del_time_interval: None, del_time: Some(Date(2025-02-03T16:15:20)), repeat: false, visible: true }, назначено новое время для выполнения: Some(Date(2025-03-03T16:15:00))
+[03-02-2025 16:22:20]-[deltime::tasker:134]:⚙ DEBUG -> 5
+[03-02-2025 16:22:20]-[deltime::tests:393]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:22:20]-[deltime::tests:389]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/1", del_time_interval: Some(1), del_time: None, repeat: false, visible: true }, назначено новое время для выполнения: None
+[03-02-2025 16:23:20]-[deltime::tasker:134]:⚙ DEBUG -> 5
+[03-02-2025 16:23:20]-[deltime::tests:393]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:24:20]-[deltime::tasker:134]:⚙ DEBUG -> 4
+[03-02-2025 16:24:20]-[deltime::tests:393]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:24:20]-[deltime::tests:389]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/2", del_time_interval: None, del_time: Some(Date(2025-02-03T16:23:20)), repeat: false, visible: true }, назначено новое время для выполнения: None
+[03-02-2025 16:24:20]-[deltime::tests:389]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: Some(3), del_time: None, repeat: false, visible: true }, назначено новое время для выполнения: None
+[03-02-2025 16:25:20]-[deltime::tasker:134]:⚙ DEBUG -> 4
+[03-02-2025 16:25:20]-[deltime::tests:393]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:26:20]-[deltime::tasker:134]:⚙ DEBUG -> 4
+[03-02-2025 16:26:20]-[deltime::tests:393]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:26:20]-[deltime::tests:389]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/4", del_time_interval: None, del_time: Some(Date(2025-02-03T16:25:20)), repeat: false, visible: true }, назначено новое время для выполнения: Some(Date(2025-02-04T16:25:00))
+[03-02-2025 16:27:20]-[deltime::tasker:134]:⚙ DEBUG -> 4
+[03-02-2025 16:27:20]-[deltime::tests:393]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:27:20]-[deltime::tests:389]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: Some(3), del_time: None, repeat: false, visible: true }, назначено новое время для выполнения: None
+[03-02-2025 16:27:20]-[deltime::tests:389]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/5", del_time_interval: None, del_time: Some(Date(2025-02-03T16:26:20)), repeat: false, visible: true }, назначено новое время для выполнения: Some(Date(2025-03-03T16:26:00))
+[03-02-2025 16:28:20]-[deltime::tasker:134]:⚙ DEBUG -> 4
+[03-02-2025 16:28:20]-[deltime::tests:393]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:29:20]-[deltime::tasker:134]:⚙ DEBUG -> 4
+[03-02-2025 16:29:20]-[deltime::tests:393]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:30:20]-[deltime::tasker:134]:⚙ DEBUG -> 4
+[03-02-2025 16:30:20]-[deltime::tests:393]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:30:20]-[deltime::tests:389]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: Some(3), del_time: None, repeat: false, visible: true }, назначено новое время для выполнения: None
+[03-02-2025 16:31:20]-[deltime::tasker:134]:⚙ DEBUG -> 4
+[03-02-2025 16:31:20]-[deltime::tests:393]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:32:20]-[deltime::tasker:134]:⚙ DEBUG -> 4
+[03-02-2025 16:32:20]-[deltime::tests:393]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:33:20]-[deltime::tasker:134]:⚙ DEBUG -> 4
+[03-02-2025 16:33:20]-[deltime::tests:393]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:33:20]-[deltime::tests:389]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: Some(3), del_time: None, repeat: false, visible: true }, назначено новое время для выполнения: None
+[03-02-2025 16:34:20]-[deltime::tasker:134]:⚙ DEBUG -> 4
+[03-02-2025 16:34:20]-[deltime::tests:393]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:35:20]-[deltime::tasker:134]:⚙ DEBUG -> 4
+[03-02-2025 16:35:20]-[deltime::tests:393]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:36:20]-[deltime::tasker:134]:⚙ DEBUG -> 4
+[03-02-2025 16:36:20]-[deltime::tests:393]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:36:20]-[deltime::tests:389]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: Some(3), del_time: None, repeat: false, visible: true }, назначено новое время для выполнения: None
+[03-02-2025 16:37:20]-[deltime::tasker:134]:⚙ DEBUG -> 4
+[03-02-2025 16:37:20]-[deltime::tests:393]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:38:20]-[deltime::tasker:134]:⚙ DEBUG -> 4
+[03-02-2025 16:38:20]-[deltime::tests:393]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:39:20]-[deltime::tasker:134]:⚙ DEBUG -> 4
+[03-02-2025 16:39:20]-[deltime::tests:393]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:39:20]-[deltime::tests:389]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: Some(3), del_time: None, repeat: false, visible: true }, назначено новое время для выполнения: None
+[03-02-2025 16:40:20]-[deltime::tasker:134]:⚙ DEBUG -> 4
+[03-02-2025 16:40:20]-[deltime::tests:393]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:41:20]-[deltime::tasker:134]:⚙ DEBUG -> 4
+[03-02-2025 16:41:20]-[deltime::tests:393]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:42:20]-[deltime::tasker:134]:⚙ DEBUG -> 4
+[03-02-2025 16:42:20]-[deltime::tests:393]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:42:20]-[deltime::tests:389]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: Some(3), del_time: None, repeat: false, visible: true }, назначено новое время для выполнения: None
+[03-02-2025 16:43:20]-[deltime::tasker:134]:⚙ DEBUG -> 4
+[03-02-2025 16:43:20]-[deltime::tests:393]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:45:05]-[deltime::tests:399]:💬 Информация -> start tasker
+[03-02-2025 16:45:05]-[deltime::tasker:139]:⚙ DEBUG -> 6
+[03-02-2025 16:45:05]-[deltime::tests:390]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/6", del_time_interval: None, del_time: Some(Date(2025-02-03T16:40:05)), repeat: false, visible: true }, назначено новое время для выполнения: Some(Date(2025-03-03T16:40:00))
+[03-02-2025 16:46:05]-[deltime::tasker:139]:⚙ DEBUG -> 5
+[03-02-2025 16:46:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:46:05]-[deltime::tests:390]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/1", del_time_interval: Some(1), del_time: None, repeat: false, visible: true }, назначено новое время для выполнения: None
+[03-02-2025 16:47:05]-[deltime::tasker:139]:⚙ DEBUG -> 5
+[03-02-2025 16:47:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:48:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 16:48:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:48:05]-[deltime::tests:390]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/2", del_time_interval: None, del_time: Some(Date(2025-02-03T16:47:05)), repeat: false, visible: true }, назначено новое время для выполнения: None
+[03-02-2025 16:48:05]-[deltime::tests:390]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: Some(3), del_time: None, repeat: false, visible: true }, назначено новое время для выполнения: None
+[03-02-2025 16:49:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 16:49:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:50:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 16:50:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:50:05]-[deltime::tests:390]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/4", del_time_interval: None, del_time: Some(Date(2025-02-03T16:49:05)), repeat: false, visible: true }, назначено новое время для выполнения: Some(Date(2025-02-04T16:49:00))
+[03-02-2025 16:51:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 16:51:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:51:05]-[deltime::tests:390]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: Some(3), del_time: None, repeat: false, visible: true }, назначено новое время для выполнения: None
+[03-02-2025 16:51:05]-[deltime::tests:390]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/5", del_time_interval: None, del_time: Some(Date(2025-02-03T16:50:05)), repeat: false, visible: true }, назначено новое время для выполнения: Some(Date(2025-03-03T16:50:00))
+[03-02-2025 16:52:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 16:52:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:53:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 16:53:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:54:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 16:54:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:54:05]-[deltime::tests:390]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: Some(3), del_time: None, repeat: false, visible: true }, назначено новое время для выполнения: None
+[03-02-2025 16:55:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 16:55:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:56:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 16:56:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:57:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 16:57:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:57:05]-[deltime::tests:390]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: Some(3), del_time: None, repeat: false, visible: true }, назначено новое время для выполнения: None
+[03-02-2025 16:58:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 16:58:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 16:59:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 16:59:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 17:00:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 17:00:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 17:00:05]-[deltime::tests:390]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: Some(3), del_time: None, repeat: false, visible: true }, назначено новое время для выполнения: None
+[03-02-2025 17:01:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 17:01:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 17:02:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 17:02:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 17:03:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 17:03:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 17:03:05]-[deltime::tests:390]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: Some(3), del_time: None, repeat: false, visible: true }, назначено новое время для выполнения: None
+[03-02-2025 17:04:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 17:04:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 17:05:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 17:05:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 17:06:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 17:06:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 17:06:05]-[deltime::tests:390]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: Some(3), del_time: None, repeat: false, visible: true }, назначено новое время для выполнения: None
+[03-02-2025 17:07:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 17:07:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 17:08:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 17:08:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 17:09:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 17:09:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 17:09:05]-[deltime::tests:390]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: Some(3), del_time: None, repeat: false, visible: true }, назначено новое время для выполнения: None
+[03-02-2025 17:10:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 17:10:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 17:11:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 17:11:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 17:12:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 17:12:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 17:12:05]-[deltime::tests:390]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: Some(3), del_time: None, repeat: false, visible: true }, назначено новое время для выполнения: None
+[03-02-2025 17:13:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 17:13:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 17:14:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 17:14:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 17:15:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 17:15:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 17:15:05]-[deltime::tests:390]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: Some(3), del_time: None, repeat: false, visible: true }, назначено новое время для выполнения: None
+[03-02-2025 17:16:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 17:16:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 17:17:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 17:17:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 17:18:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 17:18:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 17:18:05]-[deltime::tests:390]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: Some(3), del_time: None, repeat: false, visible: true }, назначено новое время для выполнения: None
+[03-02-2025 17:19:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 17:19:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 17:20:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 17:20:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 17:21:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 17:21:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 17:21:05]-[deltime::tests:390]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: Some(3), del_time: None, repeat: false, visible: true }, назначено новое время для выполнения: None
+[03-02-2025 17:22:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 17:22:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 17:23:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 17:23:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 17:24:05]-[deltime::tasker:139]:⚙ DEBUG -> 4
+[03-02-2025 17:24:05]-[deltime::tests:394]:💬 Информация -> Прошла еще минута
+[03-02-2025 17:24:05]-[deltime::tests:390]:💬 Информация -> выполнено задание:Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: Some(3), del_time: None, repeat: false, visible: true }, назначено новое время для выполнения: None
+[03-02-2025 17:46:03]-[deltime:142]:💬 Информация -> start tasker
+[03-02-2025 17:46:03]-[deltime::tasker:169]:⚙ DEBUG -> 5
+[03-02-2025 17:47:03]-[deltime::tasker:169]:⚙ DEBUG -> 4
+[03-02-2025 17:48:03]-[deltime::tasker:169]:⚙ DEBUG -> 3
+[03-02-2025 17:48:03]-[deltime::tasker:174]:⚙ DEBUG -> TimerTask { interval: None, time: Some(Date(2025-03-03T15:16:00)), repeating_strategy: Monthly, finished: false, object: (Task { file_path: "/hard/xar/projects/tests/2", del_time_interval: None, del_time: Some(Date(2025-02-03T15:16:46)), repeat: false, visible: true }, ProgressBar) }
+[03-02-2025 17:48:03]-[deltime::tasker:174]:⚙ DEBUG -> TimerTask { interval: None, time: Some(Date(2025-03-03T15:19:00)), repeating_strategy: Monthly, finished: false, object: (Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: None, del_time: Some(Date(2025-02-03T15:19:46)), repeat: false, visible: true }, ProgressBar) }
+[03-02-2025 17:48:03]-[deltime::tasker:174]:⚙ DEBUG -> TimerTask { interval: Some(2), time: None, repeating_strategy: Forever, finished: false, object: (Task { file_path: "/hard/xar/projects/tests/4", del_time_interval: Some(2), del_time: None, repeat: true, visible: false }, ProgressBar) }
+[03-02-2025 17:49:03]-[deltime::tasker:169]:⚙ DEBUG -> 3
+[03-02-2025 17:49:03]-[deltime::tasker:174]:⚙ DEBUG -> TimerTask { interval: None, time: Some(Date(2025-03-03T15:16:00)), repeating_strategy: Monthly, finished: false, object: (Task { file_path: "/hard/xar/projects/tests/2", del_time_interval: None, del_time: Some(Date(2025-02-03T15:16:46)), repeat: false, visible: true }, ProgressBar) }
+[03-02-2025 17:49:03]-[deltime::tasker:174]:⚙ DEBUG -> TimerTask { interval: None, time: Some(Date(2025-03-03T15:19:00)), repeating_strategy: Monthly, finished: false, object: (Task { file_path: "/hard/xar/projects/tests/3", del_time_interval: None, del_time: Some(Date(2025-02-03T15:19:46)), repeat: false, visible: true }, ProgressBar) }
+[03-02-2025 17:49:03]-[deltime::tasker:174]:⚙ DEBUG -> TimerTask { interval: Some(2), time: None, repeating_strategy: Forever, finished: false, object: (Task { file_path: "/hard/xar/projects/tests/4", del_time_interval: Some(2), del_time: None, repeat: true, visible: false }, ProgressBar) }
