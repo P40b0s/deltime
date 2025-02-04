@@ -7,9 +7,9 @@ use std::{sync::{Arc, LazyLock}, thread, time::Duration};
 use async_channel::Receiver;
 use cli::Cli;
 use indicatif::MultiProgress;
-use progressbars::{progress_bar_for_datetime, progress_bar_for_interval};
+use progressbars::{progress_bar_for_datetime, progress_bar_for_interval, set_date_message};
 use structs::Config;
-use tasker::{ProcessStatus, Tasker};
+use tasker::{ProcessStatus, RepeatingStrategy, Tasker};
 use usb::UsbDeviceInfo;
 use utilites::Date;
 use tokio::{runtime::Handle, sync::{mpsc::channel, RwLock}};
@@ -71,75 +71,102 @@ async fn run_process(cfg: Config)
     let mpb = MultiProgress::default();
     let tasker = Tasker::new();
     let (sender, mut receiver) = tasker.get_channel();
-    for t in cfg.tasks
+    for task in cfg.tasks.into_iter()
     {
-        if std::fs::exists(&t.file_path).is_ok_and(|f| f == true)
+        if std::fs::exists(&task.file_path).is_ok_and(|f| f == true)
         {
-            if let Some(i) = t.del_time_interval.as_ref()
+            let repeating = task.repeat;
+            let path = task.file_path.clone();
+            if let Some(i) = task.del_time_interval
             {
-                let pb = progress_bar_for_interval(&mpb, t.repeat, t.visible, &t.file_path, *i);
-                let _ = tasker.add_interval_task(Arc::new((t.clone(), pb)), *i, t.repeat).await;
+                
+                let pb = progress_bar_for_interval(&mpb, &repeating, task.visible, &path, i);
+                if let RepeatingStrategy::Forever | RepeatingStrategy::Dialy | RepeatingStrategy::Monthly = &repeating
+                {
+                    pb.set_prefix("♾ ");
+                }
+                let _ = tasker.add_interval_task((task, pb), i, repeating).await;
             }
-            if let Some(d) = t.del_time.as_ref()
+            else if let Some(d) = task.del_time.clone()
             {
                 let now = Date::now();
-                let target = time_diff(&now, d);
-                let pb = progress_bar_for_datetime(&mpb, t.visible, &t.file_path, d, target as u32);
-                let _ = tasker.add_date_task(Arc::new((t.clone(), pb)), d, crate::tasker::RepeatingStrategy::Monthly).await;
+                let target = time_diff(&now, &d);
+                let pb = progress_bar_for_datetime(&mpb, task.visible, &path, &d, target as u32);
+                if let RepeatingStrategy::Forever | RepeatingStrategy::Dialy | RepeatingStrategy::Monthly = &repeating
+                {
+                    pb.set_prefix("♾ ");
+                }
+                let _ = tasker.add_date_task((task, pb), &d, repeating).await;
             }
         }
         else 
         {
-            println!("Ошибка, файл {} не существует, задача выполнена не будет", &t.file_path);
+            
+            let path = task.file_path.clone();
+            let pb = progress_bar_for_interval(&mpb, &RepeatingStrategy::Once, true, &path, 0);
+            pb.set_prefix("❌");
+           
+            //pb.println("Ошибка, файл не существует, задача выполнена не будет");
+            let _ = tasker.add_interval_task((task, pb), 999, RepeatingStrategy::Once).await;
+            //println!("Ошибка, файл {} не существует, задача выполнена не будет", &task.file_path);
         }
     }
     tokio::spawn(async move
     {
-        let mut minute = 1;
         while let Some(r) = receiver.recv().await
         {
             match r
             {
                 ProcessStatus::Finish(t) =>
                 {
-                    t.1.finish();
+                    let guard = t.read().await;
+                    guard.1.set_prefix("✅");
+                    guard.1.finish();
                 },
                 ProcessStatus::Tick(t) =>
                 {
-                    if let Some(date) = t.0.del_time.as_ref()
+                    let guard = t.read().await;
+                    if let Some(date) = guard.0.del_time.as_ref()
                     {
                         let current_date = Date::now();
                         let diff = time_diff(&current_date, date);
-                        t.1.set_position(t.1.length().unwrap() - diff as u64);  
+                        if diff.is_positive()
+                        {
+                            guard.1.set_position(guard.1.length().unwrap() - diff as u64);  
+                        }
                     }
-                    else if let Some(i) = t.0.del_time_interval.as_ref()
+                    else if let Some(_) = guard.0.del_time_interval.as_ref()
                     {
-                        t.1.inc(1);
+                        guard.1.inc(1);
                     }
                 },
                 ProcessStatus::FinishCycle(t) =>
                 {
-                    if t.0.0.del_time.is_some()
+                    let date = t.1;
+                    let mut guard = t.0.write().await;
+                    if guard.0.del_time.is_some()
                     {
-                        if let Some(date) = t.1.as_ref()
+                        if date.is_some()
                         {
-                            t.0.1.reset(); 
+                            let date_link = date.as_ref().unwrap();
+                            guard.1.reset(); 
                             let current_date = Date::now();
-                            let new_len = time_diff(&current_date, date);
-                            t.0.1.set_length(new_len as u64);
+                            let new_len = time_diff(&current_date, date_link);
+                            guard.1.set_length(new_len as u64);
+                            set_date_message(&guard.1, guard.0.visible, date_link, &guard.0.file_path);
+                            guard.0.del_time = date;
+                            
                         }
                     }
                     else 
                     {
-                        t.0.1.reset(); 
+                        guard.1.reset(); 
                     }
                     
                 }
             }
-            minute += 1;
         }
     });
-    logger::info!("start tasker");
     tasker.run(sender).await;
 }
 
@@ -334,7 +361,7 @@ mod tests
                     file_path: "/hard/xar/projects/tests/1".to_owned(),
                     del_time_interval: Some(2),
                     del_time: None,
-                    repeat: false,
+                    repeat: crate::tasker::RepeatingStrategy::Once,
                     visible: true
                 },
                 Task
@@ -342,7 +369,7 @@ mod tests
                     file_path: "/hard/xar/projects/tests/2".to_owned(),
                     del_time_interval: None,
                     del_time: Some(Date::now().add_minutes(3)),
-                    repeat: false,
+                    repeat: crate::tasker::RepeatingStrategy::Once,
                     visible: true
                 },
                 Task
@@ -350,7 +377,7 @@ mod tests
                     file_path: "/hard/xar/projects/tests/3".to_owned(),
                     del_time_interval: None,
                     del_time: Some(Date::now().add_minutes(6)),
-                    repeat: false,
+                    repeat: crate::tasker::RepeatingStrategy::Once,
                     visible: true
                 },
                 Task
@@ -358,7 +385,7 @@ mod tests
                     file_path: "/hard/xar/projects/tests/4".to_owned(),
                     del_time_interval: Some(2),
                     del_time: None,
-                    repeat: true,
+                    repeat: crate::tasker::RepeatingStrategy::Dialy,
                     visible: false
                 },
                 Task
@@ -366,7 +393,15 @@ mod tests
                     file_path: "/hard/xar/projects/tests/5".to_owned(),
                     del_time_interval: Some(1),
                     del_time: None,
-                    repeat: false,
+                    repeat: crate::tasker::RepeatingStrategy::Monthly,
+                    visible: true
+                },
+                Task
+                {
+                    file_path: "/hard/xar/projects/tests/not_exists".to_owned(),
+                    del_time_interval: Some(1),
+                    del_time: None,
+                    repeat: crate::tasker::RepeatingStrategy::Monthly,
                     visible: true
                 },
             ]
@@ -385,7 +420,7 @@ mod tests
             file_path: "/hard/xar/projects/tests/1".to_owned(),
             del_time_interval: Some(1),
             del_time: None,
-            repeat: false,
+            repeat: crate::tasker::RepeatingStrategy::Once,
             visible: true
         };
         let date_task = Task
@@ -393,7 +428,7 @@ mod tests
             file_path: "/hard/xar/projects/tests/2".to_owned(),
             del_time_interval: None,
             del_time: Some(Date::now().add_minutes(2)),
-            repeat: false,
+            repeat: crate::tasker::RepeatingStrategy::Once,
             visible: true
         };
         let interval_with_repeat = Task
@@ -401,7 +436,7 @@ mod tests
             file_path: "/hard/xar/projects/tests/3".to_owned(),
             del_time_interval: Some(3),
             del_time: None,
-            repeat: false,
+            repeat: crate::tasker::RepeatingStrategy::Once,
             visible: true
         };
         let dialy_date = Task
@@ -409,7 +444,7 @@ mod tests
             file_path: "/hard/xar/projects/tests/4".to_owned(),
             del_time_interval: None,
             del_time: Some(Date::now().add_minutes(4)),
-            repeat: false,
+            repeat: crate::tasker::RepeatingStrategy::Once,
             visible: true
         };
         let monthly_date = Task
@@ -417,7 +452,7 @@ mod tests
             file_path: "/hard/xar/projects/tests/5".to_owned(),
             del_time_interval: None,
             del_time: Some(Date::now().add_minutes(5)),
-            repeat: false,
+            repeat: crate::tasker::RepeatingStrategy::Once,
             visible: true
         };
 
@@ -426,15 +461,15 @@ mod tests
             file_path: "/hard/xar/projects/tests/6".to_owned(),
             del_time_interval: None,
             del_time: Some(Date::now().sub_minutes(5)),
-            repeat: false,
+            repeat: crate::tasker::RepeatingStrategy::Once,
             visible: true
         };
 
 
         let tasker = Tasker::new();
-        let _ = tasker.add_interval_task(Arc::new(interval_without_repeat), 1, false).await;
+        let _ = tasker.add_interval_task(Arc::new(interval_without_repeat), 1, crate::tasker::RepeatingStrategy::Once).await;
         let _ = tasker.add_date_task(Arc::new(date_task), &Date::now().add_minutes(2), crate::tasker::RepeatingStrategy::Once).await;
-        let _ = tasker.add_interval_task(Arc::new(interval_with_repeat), 3, true).await;
+        let _ = tasker.add_interval_task(Arc::new(interval_with_repeat), 3, crate::tasker::RepeatingStrategy::Once).await;
         let _ = tasker.add_date_task(Arc::new(dialy_date), &Date::now().add_minutes(4), crate::tasker::RepeatingStrategy::Dialy).await;
         let _ = tasker.add_date_task(Arc::new(monthly_date), &Date::now().add_minutes(5), crate::tasker::RepeatingStrategy::Monthly).await;
         let _ = tasker.add_date_task(Arc::new(passed_date), &Date::now().sub_minutes(5), crate::tasker::RepeatingStrategy::Monthly).await;

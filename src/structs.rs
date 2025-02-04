@@ -1,5 +1,7 @@
+use crate::tasker::RepeatingStrategy;
+
 use super::cli::Cli;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize, Serializer};
 use utilites::Date;
 
 pub trait DeleteTaskTrait
@@ -18,8 +20,9 @@ pub struct Task
     #[serde(deserialize_with="deserialize_data")]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub del_time: Option<Date>,
-    #[serde(default)]
-    pub repeat: bool,
+    #[serde(serialize_with="serialize_repeating")]
+    #[serde(deserialize_with="deserialize_repeating")]
+    pub repeat: RepeatingStrategy,
     #[serde(default)]
     pub visible: bool
 }
@@ -45,60 +48,82 @@ where
     }
 }
 
-impl TryInto<Config> for Cli
+fn deserialize_repeating<'de, D>(deserializer: D) -> Result<RepeatingStrategy, D::Error>
+where
+    D: serde::de::Deserializer<'de>,
 {
-    type Error = String;
-    fn try_into(self) -> Result<Config, Self::Error> 
+    let s: String = serde::de::Deserialize::deserialize(deserializer)?;
+    match s.as_str()
     {
-        let mut date: Option<Date> = None;
-        if self.date.is_none() && self.interval.is_none()
-        {
-            return Err("Не переданы аргументы времени, необходимо передать -i или -d".to_string());
-        }
-        if self.date.is_some() && self.interval.is_some()
-        {
-            return Err("Можно передеть только один временной параметр или -i или -d".to_string());
-        }
-        let interval = self.interval;
-        let repeat = if interval.is_some() && self.repeat
-        {
-            self.repeat
-        }
-        else
-        {
-            false
-        };
-        if let Some(d) = self.date
-        {
-            if let Some(d) = Date::parse(d)
-            {
-                date = Some(d);
-            }   
-            else 
-            {
-                return Err("Ошибка формата даты в аргументе -d".to_string());
-            }
-        }
-        if std::fs::exists(&self.file).is_ok_and(|f| f == true)
-        {
-            return  Ok(Config
-            {
-                tasks: vec![
-                    Task
-                    {
-                        file_path: self.file,
-                        del_time: date,
-                        del_time_interval: interval,
-                        repeat,
-                        visible: self.visible
-                    }
-                ]
-            })
-        }
-        else 
-        {
-            return Err("Ошибка, указанный файл не существует".to_string());
-        };
-        
+        "monthly" => Ok(RepeatingStrategy::Monthly),
+        "dialy" => Ok(RepeatingStrategy::Dialy),
+        "forever" => Ok(RepeatingStrategy::Forever),
+        "once" => Ok(RepeatingStrategy::Once),
+        _ => Err(serde::de::Error::custom(["Ошибка, опции `" , &s, "` не существует"].concat()))
     }
 }
+fn serialize_repeating<S>(repeat: &RepeatingStrategy, serializer: S) -> Result<S::Ok, S::Error> 
+where 
+    S: Serializer,
+{
+    serializer.serialize_str(&repeat.to_string())
+}
+
+// impl TryInto<Config> for Cli
+// {
+//     type Error = String;
+//     fn try_into(self) -> Result<Config, Self::Error> 
+//     {
+//         let mut date: Option<Date> = None;
+//         if self.date.is_none() && self.interval.is_none()
+//         {
+//             return Err("Не переданы аргументы времени, необходимо передать -i или -d".to_string());
+//         }
+//         if self.date.is_some() && self.interval.is_some()
+//         {
+//             return Err("Можно передеть только один временной параметр или -i или -d".to_string());
+//         }
+//         let interval = self.interval;
+//         let repeat = if interval.is_some() && self.repeat
+//         {
+//             self.repeat
+//         }
+//         else
+//         {
+//             false
+//         };
+//         if let Some(d) = self.date
+//         {
+//             if let Some(d) = Date::parse(d)
+//             {
+//                 date = Some(d);
+//             }   
+//             else 
+//             {
+//                 return Err("Ошибка формата даты в аргументе -d".to_string());
+//             }
+//         }
+//         if std::fs::exists(&self.file).is_ok_and(|f| f == true)
+//         {
+//             return  Ok(Config
+//             {
+//                 tasks: vec![
+//                     Task
+//                     {
+//                         file_path: self.file,
+//                         del_time: date,
+//                         del_time_interval: interval,
+//                         repeat,
+//                         visible: self.visible
+//                     }
+//                 ]
+//             })
+//         }
+//         else 
+//         {
+//             return Err("Ошибка, указанный файл не существует".to_string());
+//         };
+        
+//     }
+// }
+
