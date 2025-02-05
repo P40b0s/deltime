@@ -1,35 +1,36 @@
 [[tasks]]
-file_path = "/hard/xar/projects/tests/1"
-del_time_interval = 2
+path = "/hard/xar/projects/tests/1"
+interval = 2
 repeat = "once"
 visible = true
 
 [[tasks]]
-file_path = "/hard/xar/projects/tests/2"
-del_time = "2025-02-04T17:51:42"
+path = "/hard/xar/projects/tests/2"
+date = "2025-02-05T17:11:27"
 repeat = "once"
 visible = true
 
 [[tasks]]
-file_path = "/hard/xar/projects/tests/3"
-del_time = "2025-02-04T17:54:42"
+path = "/hard/xar/projects/tests/3"
+date = "2025-02-05T17:14:27"
 repeat = "once"
 visible = true
 
 [[tasks]]
-file_path = "/hard/xar/projects/tests/4"
-del_time_interval = 2
+path = "/hard/xar/projects/tests/4"
+interval = 2
 repeat = "dialy"
 visible = false
 
 [[tasks]]
-file_path = "/hard/xar/projects/tests/5"
-del_time_interval = 1
+path = "/hard/xar/projects/tests/5"
+mask = "*.test"
+interval = 1
 repeat = "monthly"
 visible = true
 
 [[tasks]]
-file_path = "/hard/xar/projects/tests/not_exists"
-del_time_interval = 1
+path = "/hard/xar/projects/tests/not_exists"
+interval = 1
 repeat = "monthly"
 visible = true

@@ -6,7 +6,7 @@ use utilites::Date;
 use crate::tasker::RepeatingStrategy;
 
 
-pub fn progress_bar_for_interval(mpb: &MultiProgress, repeating: &RepeatingStrategy, visible: bool, fp: &str, len: u32) -> ProgressBar
+pub fn progress_bar_for_interval(mpb: &MultiProgress, repeating: &RepeatingStrategy, len: u32) -> ProgressBar
 {
     let pb = mpb.add(ProgressBar::new(len as u64));
     // let msg= if visible
@@ -19,7 +19,7 @@ pub fn progress_bar_for_interval(mpb: &MultiProgress, repeating: &RepeatingStrat
     // };
     pb.enable_steady_tick(Duration::from_millis(120));
     //pb.set_message(msg);
-    set_interval_message(&pb, visible, fp);
+    //set_interval_message(&pb, visible, fp);
     let sty = if repeating == &RepeatingStrategy::Once
     {
         ProgressStyle::with_template(
@@ -71,7 +71,7 @@ pub fn set_date_message(pb: &ProgressBar, visible: bool, date: &Date, path: &str
         [&d, " ", &t].concat()
     };
     pb.set_message(msg);
-    pb.set_prefix("🟠");
+    pb.set_prefix("⌛");
 }
 
 pub fn set_interval_message(pb: &ProgressBar, visible: bool, path: &str)
@@ -85,16 +85,16 @@ pub fn set_interval_message(pb: &ProgressBar, visible: bool, path: &str)
         "".to_owned()
     };
     pb.set_message(msg);
-    pb.set_prefix("🟠");
+    pb.set_prefix("⌛");
 }
 
 
-pub fn progress_bar_for_datetime(mpb: &MultiProgress, visible: bool, fp: &str, target_date: &Date, len: u32) -> ProgressBar
+pub fn progress_bar_for_datetime(mpb: &MultiProgress, len: u32) -> ProgressBar
 {
 
     let pb = mpb.add(ProgressBar::new(len as u64));
     //pb.set_message(msg);
-    set_date_message(&pb, visible, target_date, fp);
+    //set_date_message(&pb, visible, target_date, fp);
     pb.enable_steady_tick(Duration::from_millis(120));
     let sty = ProgressStyle::with_template(
         "[{elapsed_precise}] {prefix} {spinner:.blue}    {bar:40.green/cyan} [{msg}]",

@@ -1,16 +1,15 @@
 mod error;
 mod usb_device_info;
-#[cfg(target_os = "linux")]
+#[cfg(all(target_os = "linux", feature = "usb"))]
 mod linux;
-#[cfg(target_os = "linux")]
+#[cfg(all(target_os = "linux", feature = "usb"))]
 mod mountpoints;
-#[cfg(target_os = "windows")]
+#[cfg(all(target_os = "windows", feature = "winusb"))]
 mod windows;
 
-#[cfg(target_os = "windows")]
+#[cfg(all(target_os = "windows", feature = "winusb"))]
 pub use windows::enumerate_connected_usb;
-
-#[cfg(target_os = "linux")]
+#[cfg(all(target_os = "linux", feature = "usb"))]
 pub use linux::enumerate_connected_usb;
 
 pub use usb_device_info::UsbDeviceInfo;

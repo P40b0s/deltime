@@ -3,9 +3,14 @@ name = "deltime"
 version = "0.1.0"
 edition = "2021"
 
-[dependencies]
+[features]
+default = ["window", "usb", "winusb"]
+window = ["dep:fltk"]
+usb = ["dep:udev"]
+winusb = ["dep:wmi"]
 
-utilites = {git = "https://github.com/P40b0s/help_utilites.git", package = "utilites", default-features = false, features = ["dates", "retry"]}
+[dependencies]
+utilites = {git = "https://github.com/P40b0s/help_utilites.git", package = "utilites", default-features = false, features = ["dates", "retry", "async-io"]}
 serde = { version = "1.0.216", features = ["derive"] }
 serde_json = "1.0.133"
 clap= {version = "4.5.7", features = ["derive"]}
@@ -14,14 +19,17 @@ indicatif= {version = "0.17.9", git = "https://github.com/console-rs/indicatif.g
 usbenum="*"
 mountpoints="*"
 thiserror="*"
-tokio= {version = "1.41.1", features = ["macros", "rt", "rt-multi-thread", "bytes"] }
+tokio= {version = "1.41.1", features = ["macros", "rt", "rt-multi-thread", "bytes", "fs"] }
 logger = {git = "https://github.com/P40b0s/logger.git"}
 async-channel="2.3.1"
 futures="0.3.31"
+#window
+fltk = { version = "*", optional = true}
+#usb
 [target.'cfg(target_os = "linux")'.dependencies]
-udev="0.9.3"
+udev = { version="0.9.3", optional = true }
 [target.'cfg(target_os = "windows")'.dependencies]
-wmi="0.15.0"
+wmi = { version = "0.15.0", optional = true }
 
 
 

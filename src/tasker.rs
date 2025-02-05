@@ -2,7 +2,7 @@ use std::{fmt::{Debug, Display}, ops::{Deref, DerefMut}, sync::{Arc, LazyLock}};
 use serde::{Deserialize, Serialize};
 use tokio::sync::{mpsc::{Receiver, Sender, UnboundedReceiver, UnboundedSender}, RwLock};
 use utilites::Date;
-
+use crate::helpers::time_diff;
 // pub struct TaskerObject<T: Debug> where T: Send + Sync + Clone
 // {
 //     object: T,
@@ -197,14 +197,27 @@ impl<T> Tasker<T> where T: Clone + Debug
         let mut guard = self.0.write().await;
         guard.push(task);
     }
+    pub async fn add_error_task(&self, task: T)
+    {
+        let task = TimerTask
+        {
+            interval: Some(999),
+            time: None,
+            repeating_strategy: RepeatingStrategy::Once,
+            finished: true,
+            object: Arc::new(RwLock::new(task))
+        };
+        let mut guard = self.0.write().await;
+        guard.push(task);
+    }
 
-    pub async fn add_date_task(&self, task: T, date: &Date, repeating_strategy: RepeatingStrategy)
+    pub async fn add_date_task(&self, task: T, date: Date, repeating_strategy: RepeatingStrategy)
     {
         let mut guard = self.0.write().await;
         let task = TimerTask
         {
             interval: None,
-            time: Some(date.clone()),
+            time: Some(date),
             repeating_strategy,
             finished: false,
             object: Arc::new(RwLock::new(task))
@@ -221,9 +234,4 @@ fn current_timestramp(date: &Date) -> u32
     let now = Date::now();
     let target = time_diff(&now, date);
     target as u32
-}
-
-fn time_diff(current_date: &Date, checked_date: &Date) -> i64
-{
-    checked_date.as_naive_datetime().and_utc().timestamp() - current_date.as_naive_datetime().and_utc().timestamp()
 }
