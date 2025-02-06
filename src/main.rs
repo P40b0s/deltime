@@ -1,3 +1,4 @@
+#![windows_subsystem = "windows"]
 mod structs;
 mod progressbars;
 mod usb;
@@ -18,13 +19,10 @@ use tokio::{runtime::Handle, sync::{mpsc::channel, RwLock}};
 const FILE_NAME: &str = "config.toml";
 
 #[tokio::main]
-
 async fn main() 
 {
 
     logger::StructLogger::new_default();
-    #[cfg(feature = "window")]
-    window::start();
     // let (sender, mut receiver) = channel::<UsbDeviceInfo>(5);
     // //usb::enumerate_connected_usb(sender).await;
     // let handle = Handle::current();
@@ -90,6 +88,7 @@ async fn run_process(cfg: Config)
         }
         else 
         {
+            logger::error!("файл не найден {}", task.get_str_path());
             let _ = tasker.add_error_task(task).await;
         }
     }
@@ -102,8 +101,10 @@ async fn run_process(cfg: Config)
                 ProcessStatus::Finish(t) =>
                 {
                     let guard = t.read().await;
+                    logger::error!("Процесс {} завершен", guard.get_str_path());
                     if let Err(e) = guard.del_file().await
                     {
+                        logger::error!("{}", &e);
                         guard.finish_with_err(e);
                     }
                     else 
@@ -124,6 +125,8 @@ async fn run_process(cfg: Config)
                 }
             }
         }
+        #[cfg(feature = "window")]
+        window::start();
     });
     tasker.run(sender).await;
 }
@@ -132,7 +135,7 @@ async fn run_process(cfg: Config)
 #[cfg(test)]
 mod tests
 {
-    use std::{os::raw, sync::Arc};
+    use std::{os::raw, path::{Path, PathBuf}, sync::Arc};
     use utilites::Date;
     use crate::{helpers::time_diff, structs::{Config, Task}, tasker::Tasker, FILE_NAME};
 
@@ -168,7 +171,7 @@ mod tests
                 tasks: vec![
                 Task
                 {
-                    path: "/hard/xar/projects/tests/1".to_owned(),
+                    path: PathBuf::from("/hard/xar/projects/tests/1"),
                     mask: None,
                     interval: Some(2),
                     date: None,
@@ -177,7 +180,7 @@ mod tests
                 },
                 Task
                 {
-                    path: "/hard/xar/projects/tests/2".to_owned(),
+                    path: PathBuf::from("/hard/xar/projects/tests/2"),
                     mask: None,
                     interval: None,
                     date: Some(Date::now().add_minutes(3)),
@@ -186,7 +189,7 @@ mod tests
                 },
                 Task
                 {
-                    path: "/hard/xar/projects/tests/3".to_owned(),
+                    path: PathBuf::from("/hard/xar/projects/tests/3"),
                     mask: None,
                     interval: None,
                     date: Some(Date::now().add_minutes(6)),
@@ -195,7 +198,7 @@ mod tests
                 },
                 Task
                 {
-                    path: "/hard/xar/projects/tests/4".to_owned(),
+                    path: PathBuf::from("/hard/xar/projects/tests/4"),
                     mask: None,
                     interval: Some(2),
                     date: None,
@@ -204,7 +207,7 @@ mod tests
                 },
                 Task
                 {
-                    path: "/hard/xar/projects/tests/5".to_owned(),
+                    path: PathBuf::from("/hard/xar/projects/tests/5"),
                     mask: Some("*.test".into()),
                     interval: Some(1),
                     date: None,
@@ -213,7 +216,7 @@ mod tests
                 },
                 Task
                 {
-                    path: "/hard/xar/projects/tests/not_exists".to_owned(),
+                    path: PathBuf::from("/hard/xar/projects/tests/not_exists"),
                     mask: None,
                     interval: Some(1),
                     date: None,
@@ -233,7 +236,7 @@ mod tests
         logger::StructLogger::new_default();
         let interval_without_repeat = Task
         {
-            path: "/hard/xar/projects/tests/1".to_owned(),
+            path: PathBuf::from("/hard/xar/projects/tests/1"),
             mask: None,
             interval: Some(1),
             date: None,
@@ -243,7 +246,7 @@ mod tests
 
         let date_task = Task
         {
-            path: "/hard/xar/projects/tests/2".to_owned(),
+            path: PathBuf::from("/hard/xar/projects/tests/2"),
             mask: None,
             interval: None,
             date: Some(Date::now().add_minutes(2)),
@@ -253,7 +256,7 @@ mod tests
 
         let interval_with_repeat = Task
         {
-            path: "/hard/xar/projects/tests/3".to_owned(),
+            path: PathBuf::from("/hard/xar/projects/tests/3"),
             mask: None,
             interval: Some(3),
             date: None,
@@ -263,7 +266,7 @@ mod tests
 
         let dialy_date = Task
         {
-            path: "/hard/xar/projects/tests/4".to_owned(),
+            path: PathBuf::from("/hard/xar/projects/tests/4"),
             mask: None,
             interval: None,
             date: Some(Date::now().add_minutes(4)),
@@ -273,7 +276,7 @@ mod tests
 
         let monthly_date = Task
         {
-            path: "/hard/xar/projects/tests/5".to_owned(),
+            path: PathBuf::from("/hard/xar/projects/tests/5"),
             mask: None,
             interval: None,
             date: Some(Date::now().add_minutes(5)),
@@ -283,7 +286,7 @@ mod tests
 
         let passed_date = Task
         {
-            path: "/hard/xar/projects/tests/6".to_owned(),
+            path: PathBuf::from("/hard/xar/projects/tests/6"),
             mask: None,
             interval: None,
             date: Some(Date::now().sub_minutes(5)),

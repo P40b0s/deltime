@@ -1,4 +1,4 @@
-use std::borrow::Cow;
+use std::{borrow::Cow, path::{Path, PathBuf}};
 use crate::tasker::RepeatingStrategy;
 use crate::helpers::time_diff;
 use indicatif::{MultiProgress, ProgressBar};
@@ -15,7 +15,7 @@ pub trait DeleteTaskTrait
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct Task
 {
-    pub path: String,
+    pub path: PathBuf,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub mask: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -28,6 +28,17 @@ pub struct Task
     pub repeat: RepeatingStrategy,
     #[serde(default)]
     pub visible: bool
+}
+impl Task
+{
+    pub fn get_path(&self) -> &Path
+    {
+        &self.path
+    }
+    pub fn get_str_path(&self) -> &str
+    {
+        &self.path.as_os_str().to_str().unwrap_or_default()
+    }
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
@@ -107,7 +118,7 @@ impl TaskWithProgress
         {
             let pb = crate::progress_bar_for_interval(mpb, &RepeatingStrategy::Once,0);
             pb.set_prefix("❌");
-            pb.set_message(["файл ", &task.path, " не существует"].concat());
+            pb.set_message(["файл ", task.get_str_path(), " не существует"].concat());
             pb.finish();
             pb
         };
@@ -141,9 +152,13 @@ impl TaskWithProgress
     {
         std::fs::exists(&self.task.path).is_ok_and(|f| f == true)
     }
-    pub fn get_path(&self) -> &str
+    pub fn get_str_path(&self) -> &str
     {
-        &self.task.path
+        &self.task.get_str_path()
+    }
+    pub fn get_path(&self) -> &Path
+    {
+        &self.task.get_path()
     }
     pub fn get_strategy(&self) -> &RepeatingStrategy
     {
@@ -213,9 +228,10 @@ impl TaskWithProgress
     pub async fn del_file(&self) -> Result<(), String>
     {
         let path = self.get_path();
+        let str_path = self.get_str_path();
         if !self.path_is_exists()
         {
-            return Err(["Файл `", path, "` не найден"].concat());
+            return Err(["Файл `", str_path, "` не найден"].concat());
         }
         let metadata = tokio::fs::metadata(path).await;
         if let Ok(md) = metadata
@@ -232,9 +248,9 @@ impl TaskWithProgress
                     match del.err().unwrap().kind()
                     {
                         tokio::io::ErrorKind::PermissionDenied | tokio::io::ErrorKind::ResourceBusy =>
-                            Err(["Нет прав или файл `", path, "` занят другим приложением"].concat()),
+                            Err(["Нет прав или файл `", str_path, "` занят другим приложением"].concat()),
                         tokio::io::ErrorKind::NotFound =>
-                            Err(["Файл `", path, "` не найден"].concat()),
+                            Err(["Файл `", str_path, "` не найден"].concat()),
                         _=> Ok(())
                     }
                 };
@@ -253,7 +269,7 @@ impl TaskWithProgress
                     }
                     else 
                     {
-                        Err(["При операции c `", path, "` произошла ошибка"].concat())
+                        Err(["При операции c `", str_path, "` произошла ошибка"].concat())
                     }
                 }
                 else 
@@ -268,9 +284,9 @@ impl TaskWithProgress
                         match del.err().unwrap().kind()
                         {
                             tokio::io::ErrorKind::PermissionDenied | tokio::io::ErrorKind::ResourceBusy =>
-                                Err(["Нет прав или файл `", path, "` занят другим приложением"].concat()),
+                                Err(["Нет прав или файл `", str_path, "` занят другим приложением"].concat()),
                             tokio::io::ErrorKind::NotFound =>
-                                Err(["Файл `", path, "` не найден"].concat()),
+                                Err(["Файл `", str_path, "` не найден"].concat()),
                             _=> Ok(())
                         }
                     };
@@ -280,10 +296,12 @@ impl TaskWithProgress
         Err("Ошибка получения метадаты".to_owned())
         
     }
-    fn set_date_message(pb: &ProgressBar, visible: bool, date: &Date, path: &str, mask: Option<&String>, strategy: &RepeatingStrategy)
+    fn set_date_message<P: AsRef<Path>>(pb: &ProgressBar, visible: bool, date: &Date, path: P, mask: Option<&String>, strategy: &RepeatingStrategy)
     {
         let d = date.format(utilites::DateFormat::DotDate);
         let t = date.format(utilites::DateFormat::Time);
+        let path = path.as_ref();
+        let path = path.as_os_str().to_str().unwrap_or_default();
         let msg= if visible
         {
             if let Some(m) = mask
@@ -310,8 +328,10 @@ impl TaskWithProgress
         }
     }
 
-    fn set_interval_message(pb: &ProgressBar, visible: bool, path: &str, mask: Option<&String>, strategy: &RepeatingStrategy)
+    fn set_interval_message<P: AsRef<Path>>(pb: &ProgressBar, visible: bool, path: P, mask: Option<&String>, strategy: &RepeatingStrategy)
     {
+        let path = path.as_ref();
+        let path = path.as_os_str().to_str().unwrap_or_default();
         let msg= if visible
         {
             if let Some(m) = mask

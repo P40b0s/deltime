@@ -6,13 +6,13 @@ visible = true
 
 [[tasks]]
 path = "/hard/xar/projects/tests/2"
-date = "2025-02-05T17:11:27"
+date = "2025-02-06T13:39:01"
 repeat = "once"
 visible = true
 
 [[tasks]]
 path = "/hard/xar/projects/tests/3"
-date = "2025-02-05T17:14:27"
+date = "2025-02-06T13:42:01"
 repeat = "once"
 visible = true
 
