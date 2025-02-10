@@ -6,19 +6,19 @@ visible = true
 
 [[tasks]]
 path = "/hard/xar/projects/tests/2"
-date = "2025-02-06T13:39:01"
+date = "2025-02-10T15:06:21"
 repeat = "once"
 visible = true
 
 [[tasks]]
 path = "/hard/xar/projects/tests/3"
-date = "2025-02-06T13:42:01"
+date = "2025-02-10T15:09:21"
 repeat = "once"
 visible = true
 
 [[tasks]]
 path = "/hard/xar/projects/tests/4"
-interval = 2
+date = "2025-02-10T15:06:21"
 repeat = "dialy"
 visible = false
 
@@ -33,4 +33,10 @@ visible = true
 path = "/hard/xar/projects/tests/not_exists"
 interval = 1
 repeat = "monthly"
+visible = true
+
+[[tasks]]
+path = "/hard/xar/projects/tests/expired"
+date = "2025-02-10T15:00:21"
+repeat = "once"
 visible = true

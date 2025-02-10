@@ -1,7 +1,7 @@
 use std::{borrow::Cow, path::{Path, PathBuf}};
-use crate::tasker::RepeatingStrategy;
 use crate::helpers::time_diff;
 use indicatif::{MultiProgress, ProgressBar};
+use scheduler::RepeatingStrategy;
 use serde::{Deserialize, Serialize, Serializer};
 use utilites::Date;
 
@@ -193,35 +193,30 @@ impl TaskWithProgress
     {
         self.pb.reset();
     }
-    pub fn update_progress(&self)
+    pub fn update_progress(&self, current: u64, len: u64)
     {
-        if let Some(date) = self.task.date.as_ref()
+        if let Some(_) = self.task.date.as_ref()
         {
-            let current_date = Date::now();
-            let diff = time_diff(&current_date, date);
-            if diff.is_positive()
-            {
-                self.pb.set_position(self.pb.length().unwrap() - diff as u64);  
-            }
+            self.pb.set_length(len as u64);
+            self.pb.set_position(current);  
         }
         else if let Some(_) = self.task.interval.as_ref()
         {
-            self.pb.inc(1);
+            self.pb.set_length(len as u64);
+            self.pb.set_position(current);  
         }
     }
-    pub fn update_progress_with_cycle(&mut self, new_date: Option<Date>)
+    pub fn update_progress_with_cycle(&mut self, current: u64, len: u64)
     {
         self.reset();
         if self.task.date.is_some()
         {
-            if let Some(new_date) = new_date
-            {
-                let current_date = Date::now();
-                let new_len = time_diff(&current_date, &new_date);
-                self.pb.set_length(new_len as u64);
-                Self::set_date_message(&self.pb, self.task.visible, &new_date, self.get_path(), self.task.mask.as_ref(), self.get_strategy());
-                self.task.date = Some(new_date);
-            }
+            self.pb.set_length(len as u64);
+            self.pb.set_position(current);
+            let new_date = self.task.date.as_ref().unwrap().clone().add_seconds(len as i64);
+            Self::set_date_message(&self.pb, self.task.visible, &new_date, self.get_path(), self.task.mask.as_ref(), self.get_strategy());
+            self.task.date = Some(new_date);
+            
         }
     }
 

@@ -1,9 +1,7 @@
 use std::time::Duration;
-
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
+use scheduler::RepeatingStrategy;
 use utilites::Date;
-
-use crate::tasker::RepeatingStrategy;
 
 
 pub fn progress_bar_for_interval(mpb: &MultiProgress, repeating: &RepeatingStrategy, len: u32) -> ProgressBar
