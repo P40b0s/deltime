@@ -6,24 +6,55 @@ mod tasker;
 mod helpers;
 #[cfg(feature = "window")]
 mod window;
-use std::{collections::HashMap, sync::{Arc, LazyLock}, thread, time::Duration};
-use async_channel::Receiver;
+use std::{collections::HashMap, sync::Arc, time::Duration};
+use futures::{task::SpawnExt, StreamExt};
 use indicatif::MultiProgress;
-use progressbars::{progress_bar_for_datetime, progress_bar_for_interval, set_date_message};
-use scheduler::{Scheduler, SchedulerEvent, SchedulerHandler};
+use progressbars::{progress_bar_for_datetime, progress_bar_for_interval};
+use scheduler::Scheduler;
 use structs::{Config, TaskWithProgress};
-
 use tasker::Handler;
-use utilites::Date;
-use tokio::{runtime::Handle, sync::{mpsc::channel, RwLock}};
+use tokio::sync::RwLock;
+use usb::UsbDeviceInfo;
 
 const FILE_NAME: &str = "config.toml";
+
+fn test(device: UsbDeviceInfo) -> impl std::future::Future<Output = ()> 
+{
+    async move {
+        logger::info!("{:?}", device);
+    }
+    
+}
+
 
 
 #[tokio::main]
 async fn main() 
 {
-    logger::StructLogger::new_default();
+    let _ = logger::StructLogger::new_default();
+    let (sender, mut receiver) = tokio::sync::mpsc::channel::<UsbDeviceInfo>(1);
+    tokio::spawn(async move
+    {
+        tokio::spawn(async move 
+        {
+            futures::executor::block_on(async move
+            {
+                let r = usb::enumerate_connected_usb(sender).await;
+                logger::info!("result from enumerate_connected_usb in main: {:?}", r);
+                
+            })
+        });
+    
+        while let Some(stream) = receiver.recv().await
+        {
+            logger::info!("info from receiver: {:?}", stream);
+        }
+    });
+   loop 
+   {
+       tokio::time::sleep(Duration::from_millis(5000)).await;
+       logger::debug!("report 5000");
+   }
     load_config().await;
 }
 
@@ -47,8 +78,8 @@ async fn load_config()
 async fn run_process(cfg: Config)
 {
     let mpb = MultiProgress::default();
-    let mut tasks = HashMap::new();
-    let scheduler = Scheduler::new();
+    let tasks: Arc<RwLock<HashMap<uuid::Uuid, TaskWithProgress>>> = Arc::new(RwLock::new(HashMap::new()));
+    let scheduler: Arc<Scheduler<uuid::Uuid>> = Arc::new(Scheduler::new());
     for task in cfg.tasks.into_iter()
     {
         let task = TaskWithProgress::new(task, &mpb);
@@ -69,8 +100,12 @@ async fn run_process(cfg: Config)
         {
             let _ = mpb.println(format!("файл не найден {}", task.get_str_path()));
         }
-        tasks.insert(task_id, task);
+        let mut guard = tasks.write().await;
+        guard.insert(task_id, task);
     }
+
+
+    //TODO insert usb handler here
     let handler = Handler::new(tasks);
     //#[cfg(feature = "window")]
     //window::start();
@@ -81,8 +116,8 @@ async fn run_process(cfg: Config)
 #[cfg(test)]
 mod tests
 {
-    use std::{os::raw, path::{Path, PathBuf}, sync::Arc};
-    use scheduler::{RepeatingStrategy, Scheduler};
+    use std::path::PathBuf;
+    use scheduler::RepeatingStrategy;
     use utilites::Date;
     use crate::{helpers::time_diff, structs::{Config, Task}, FILE_NAME};
 

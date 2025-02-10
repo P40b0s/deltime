@@ -2,10 +2,10 @@ use super::{error::Error, usb_device_info::{self, UsbDeviceInfo}};
 use std::{
     collections::HashMap, ffi::OsStr, mem::size_of, os::windows::ffi::OsStrExt, path::Path, ptr::{null, null_mut}, sync::Arc, time::Duration
 };
-use futures::{SinkExt, StreamExt};
+use futures::{SinkExt, Stream, StreamExt};
 use serde::Deserialize;
-use wmi::{COMLibrary, FilterValue, Variant, WMIConnection, WMIDateTime};
-use tokio::sync::{mpsc::Sender, Mutex};
+use wmi::{COMLibrary, FilterValue, Variant, WMIConnection, WMIDateTime, WMIError};
+use tokio::{sync::{mpsc::Sender, Mutex}, task};
 
 #[derive(Deserialize, Debug)]
 #[serde(rename = "__InstanceCreationEvent")]
@@ -32,7 +32,13 @@ struct Disks
     free_space: u64,
 
 }
-
+impl Into<UsbDeviceInfo> for NewProcessEvent
+{
+    fn into(self) -> UsbDeviceInfo 
+    {
+        self.target_instance.into()
+    }
+}
 impl Into<UsbDeviceInfo> for Disks
 {
     fn into(self) -> UsbDeviceInfo 
@@ -51,6 +57,7 @@ impl Into<UsbDeviceInfo> for Disks
         }
     }
 }
+//pub async fn enumerate_connected_usb<F: Send, R>(closure: F) -> Result<(), Error> where F: Fn(UsbDeviceInfo) -> R, R: std::future::Future<Output = ()> 
 pub async fn enumerate_connected_usb(sender: Sender<UsbDeviceInfo>) -> Result<(), Error>
 {
     //let mut sender = sender;
@@ -61,15 +68,36 @@ pub async fn enumerate_connected_usb(sender: Sender<UsbDeviceInfo>) -> Result<()
     //let results: Vec<Disks> = wmi_con.query()?;
     let mut filters = HashMap::<String, FilterValue>::new();
     filters.insert("TargetInstance".to_owned(), FilterValue::is_a::<Disks>()?);
-    let mut stream = wmi_con.async_filtered_notification::<NewProcessEvent>(&filters, Some(Duration::from_secs(1)))?;
-    
+    let mut stream = wmi_con.async_filtered_notification::<NewProcessEvent>(&filters, Some(Duration::from_secs(2)))?;
     //let event = stream.next().await.unwrap()?;
-    
     while let Some(d) = stream.next().await
     {
-       
+        logger::info!("result in windows.rs: {:?}", &d);
         let result = d?;
-        sender.send(result.target_instance.into());
+        let s = sender.send(result.into()).await;
+        logger::info!("result in windows.rs sender result: {:?}", s);
     }
     Ok(())
+}
+
+
+pub async fn enumerate()
+{
+    let (sender, mut receiver) = tokio::sync::mpsc::channel::<UsbDeviceInfo>(1);
+    tokio::spawn(async move
+    {
+        tokio::spawn(async move 
+        {
+            futures::executor::block_on(async move
+            {
+                let r = enumerate_connected_usb(sender).await;
+                logger::info!("result from enumerate_connected_usb in main: {:?}", r);
+                
+            })
+        });
+        while let Some(stream) = receiver.recv().await
+        {
+            logger::info!("info from receiver: {:?}", stream);
+        }
+    });
 }

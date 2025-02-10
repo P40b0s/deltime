@@ -18,7 +18,7 @@ impl ApplicationHandler for App
         self.window = Some(w);
     }
 
-    fn window_event(&mut self, event_loop: &ActiveEventLoop, id: WindowId, event: WindowEvent) 
+    fn window_event(&mut self, _: &ActiveEventLoop, _: WindowId, _: WindowEvent) 
     {
         ()
     }

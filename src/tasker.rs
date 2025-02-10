@@ -1,9 +1,7 @@
-use std::{collections::HashMap, fmt::{Debug, Display}, ops::{Deref, DerefMut}, sync::{Arc, LazyLock}};
+use std::{collections::HashMap, sync::Arc};
 use scheduler::{SchedulerEvent, SchedulerHandler};
-use serde::{Deserialize, Serialize};
-use tokio::sync::{mpsc::{Receiver, Sender, UnboundedReceiver, UnboundedSender}, RwLock};
-use utilites::Date;
-use crate::{helpers::time_diff, structs::TaskWithProgress};
+use tokio::sync::RwLock;
+use crate::structs::TaskWithProgress;
 
 
 pub struct Handler
@@ -12,11 +10,11 @@ pub struct Handler
 }
 impl Handler
 {
-    pub fn new(tasks: HashMap<uuid::Uuid, TaskWithProgress>) -> Self
+    pub fn new(tasks: Arc<RwLock<HashMap<uuid::Uuid, TaskWithProgress>>>) -> Self
     {
         Self
         {
-            tasks: Arc::new(RwLock::new(tasks))
+            tasks
         }
     }
 }
