@@ -41,11 +41,6 @@ impl Task
     }
 }
 
-#[derive(Deserialize, Serialize, Clone, Debug)]
-pub struct Config 
-{
-    pub tasks: Vec<Task>
-}
 
 fn deserialize_data<'de, D>(deserializer: D) -> Result<Option<Date>, D::Error>
 where

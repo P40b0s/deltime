@@ -11,4 +11,6 @@ pub enum Error
     Wmi(#[from] wmi::utils::WMIError),
     #[error("{0}")]
     Io(#[from] std::io::Error),
+    #[error("{0}")]
+    Utilites(#[from] utilites::error::Error),
 }

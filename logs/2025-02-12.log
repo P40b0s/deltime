@@ -1,0 +1,51 @@
+[12-02-2025 00:06:27]-[deltime::usb::linux::tests:418]:💬 Информация -> starting from receiver!
+[12-02-2025 00:06:32]-[deltime::usb::linux::tests:430]:⚙ DEBUG -> looping: 5s
+[12-02-2025 00:06:37]-[deltime::usb::linux::tests:430]:⚙ DEBUG -> looping: 5s
+[12-02-2025 00:06:41]-[utilites::retry:54]:⚠ Предупреждение -> Повторная попытка выполнения retry осталось 3 попыток
+[12-02-2025 00:06:42]-[deltime::usb::linux::tests:430]:⚙ DEBUG -> looping: 5s
+[12-02-2025 00:06:43]-[deltime::usb::linux:318]:⚙ DEBUG -> send result: Ok(())
+[12-02-2025 00:06:43]-[deltime::usb::linux::tests:421]:💬 Информация -> receive info from receiver! /run/media/phobos/x
+[12-02-2025 00:06:47]-[deltime::usb::linux::tests:430]:⚙ DEBUG -> looping: 5s
+[12-02-2025 00:06:52]-[deltime::usb::linux::tests:430]:⚙ DEBUG -> looping: 5s
+[12-02-2025 00:06:57]-[deltime::usb::linux::tests:430]:⚙ DEBUG -> looping: 5s
+[12-02-2025 00:07:33]-[deltime::usb::linux::tests:418]:💬 Информация -> starting from receiver!
+[12-02-2025 00:07:38]-[deltime::usb::linux::tests:430]:⚙ DEBUG -> looping: 5s
+[12-02-2025 00:07:43]-[deltime::usb::linux::tests:430]:⚙ DEBUG -> looping: 5s
+[12-02-2025 00:07:44]-[utilites::retry:54]:⚠ Предупреждение -> Повторная попытка выполнения retry осталось 3 попыток
+[12-02-2025 00:07:45]-[deltime::usb::linux::tests:421]:💬 Информация -> receive info from receiver! /run/media/phobos/x
+[12-02-2025 00:07:45]-[deltime::usb::linux:318]:⚙ DEBUG -> send result: Ok(())
+[12-02-2025 00:07:48]-[deltime::usb::linux::tests:430]:⚙ DEBUG -> looping: 5s
+[12-02-2025 00:07:53]-[deltime::usb::linux::tests:430]:⚙ DEBUG -> looping: 5s
+[12-02-2025 00:27:56]-[deltime::usb::linux::tests:434]:⚙ DEBUG -> looping: 5s
+[12-02-2025 00:28:01]-[deltime::usb::linux::tests:434]:⚙ DEBUG -> looping: 5s
+[12-02-2025 00:28:06]-[deltime::usb::linux::tests:434]:⚙ DEBUG -> looping: 5s
+[12-02-2025 00:28:11]-[deltime::usb::linux::tests:434]:⚙ DEBUG -> looping: 5s
+[12-02-2025 00:28:15]-[utilites::retry:54]:⚠ Предупреждение -> Повторная попытка выполнения retry осталось 3 попыток
+[12-02-2025 00:28:16]-[deltime::usb::linux::tests:434]:⚙ DEBUG -> looping: 5s
+[12-02-2025 00:28:17]-[utilites::retry:54]:⚠ Предупреждение -> Повторная попытка выполнения retry осталось 2 попыток
+[12-02-2025 00:28:18]-[utilites::retry:54]:⚠ Предупреждение -> Повторная попытка выполнения retry осталось 1 попыток
+[12-02-2025 00:28:21]-[deltime::usb::linux::tests:434]:⚙ DEBUG -> looping: 5s
+[12-02-2025 00:28:26]-[deltime::usb::linux::tests:434]:⚙ DEBUG -> looping: 5s
+[12-02-2025 00:28:31]-[deltime::usb::linux::tests:434]:⚙ DEBUG -> looping: 5s
+[12-02-2025 00:28:36]-[deltime::usb::linux::tests:434]:⚙ DEBUG -> looping: 5s
+[12-02-2025 00:28:41]-[deltime::usb::linux::tests:434]:⚙ DEBUG -> looping: 5s
+[12-02-2025 00:28:46]-[deltime::usb::linux::tests:434]:⚙ DEBUG -> looping: 5s
+[12-02-2025 00:28:48]-[utilites::retry:54]:⚠ Предупреждение -> Повторная попытка выполнения retry осталось 3 попыток
+[12-02-2025 00:28:49]-[deltime::usb::linux:313]:⚙ DEBUG -> send result: Ok(())
+[12-02-2025 00:28:49]-[deltime::usb::linux::tests:429]:💬 Информация -> callback fn /run/media/phobos/x
+[12-02-2025 00:28:51]-[deltime::usb::linux::tests:434]:⚙ DEBUG -> looping: 5s
+[12-02-2025 00:28:56]-[deltime::usb::linux::tests:434]:⚙ DEBUG -> looping: 5s
+[12-02-2025 00:29:01]-[deltime::usb::linux::tests:434]:⚙ DEBUG -> looping: 5s
+[12-02-2025 00:29:06]-[deltime::usb::linux::tests:434]:⚙ DEBUG -> looping: 5s
+[12-02-2025 00:29:11]-[deltime::usb::linux::tests:434]:⚙ DEBUG -> looping: 5s
+[12-02-2025 00:39:12]-[deltime::tests:243]:💬 Информация -> Ok(())
+[12-02-2025 00:41:30]-[utilites::retry:54]:⚠ Предупреждение -> Повторная попытка выполнения retry осталось 9 попыток
+[12-02-2025 00:41:32]-[deltime::usb::linux:313]:⚙ DEBUG -> send result: Ok(())
+[12-02-2025 00:45:22]-[utilites::retry:54]:⚠ Предупреждение -> Повторная попытка выполнения retry осталось 9 попыток
+[12-02-2025 00:45:24]-[deltime::usb::linux:313]:⚙ DEBUG -> send result: Ok(())
+[12-02-2025 00:45:24]-[deltime:116]:⚙ DEBUG -> usb path: /run/media/phobos/x/config.toml
+[12-02-2025 00:53:07]-[deltime::tests:329]:💬 Информация -> Ok(())
+[12-02-2025 00:55:21]-[deltime::tests:375]:💬 Информация -> Ok(())
+[12-02-2025 00:57:19]-[utilites::retry:54]:⚠ Предупреждение -> Повторная попытка выполнения retry осталось 9 попыток
+[12-02-2025 00:57:20]-[deltime::usb::linux:313]:⚙ DEBUG -> send result: Ok(())
+[12-02-2025 00:57:20]-[deltime:116]:⚙ DEBUG -> usb path: /run/media/phobos/x/config.toml

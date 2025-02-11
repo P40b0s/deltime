@@ -1,5 +1,5 @@
-use std::{io::BufRead, path::PathBuf};
-use super::error::Error;
+use std::{borrow::Cow, io::BufRead, path::PathBuf};
+use crate::error::Error;
 
 
 
@@ -41,6 +41,39 @@ impl MountPoints
                 })
             }).collect())
         )
+    }
+    pub fn get_mount_point_with_load(device_name: &str) -> Result<PathBuf, Error>
+    {
+        let mnt = std::io::BufReader::new(
+            std::fs::File::open(PathBuf::from("/proc/mounts"))
+                .map_err(|e| Error::Generic("/proc/mounts".into()))?,
+        )
+        .lines()
+        .map_while(Result::ok)
+        .find_map(|l| 
+        {
+            let mut parts = l.trim_end_matches(" 0 0").split(' ');
+            let dev_name = parts.next()?;
+            let mnt_point = parts.next()?;
+            if dev_name == device_name
+            {
+                Some(mnt_point.to_owned())
+            }
+            else 
+            {
+                None
+            }
+        });
+        if let Some(mnt) = mnt
+        {
+            Ok(mnt.into())
+        }
+        else 
+        {
+            Err(Error::Generic("mount point not found".into()))
+        }
+
+        //self.0.iter().find(|f| &f.device == device_name).as_ref().and_then(|m| Some(m.mountpoint.clone()))
     }
     pub fn get_mount_point(&self, device_name: &str) -> Option<PathBuf>
     {

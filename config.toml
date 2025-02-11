@@ -1,42 +1,42 @@
 [[tasks]]
-path = "/hard/xar/projects/tests/1"
+path = "/home/phobos/projects/rust/deltime/tests/1"
 interval = 2
 repeat = "once"
 visible = true
 
 [[tasks]]
-path = "/hard/xar/projects/tests/2"
-date = "2025-02-10T15:06:21"
+path = "/home/phobos/projects/rust/deltime/tests/2"
+date = "2025-02-12T00:58:21"
 repeat = "once"
 visible = true
 
 [[tasks]]
-path = "/hard/xar/projects/tests/3"
-date = "2025-02-10T15:09:21"
+path = "/home/phobos/projects/rust/deltime/tests/3"
+date = "2025-02-12T01:01:21"
 repeat = "once"
 visible = true
 
 [[tasks]]
-path = "/hard/xar/projects/tests/4"
-date = "2025-02-10T15:06:21"
+path = "/home/phobos/projects/rust/deltime/tests/4"
+date = "2025-02-12T00:58:21"
 repeat = "dialy"
 visible = false
 
 [[tasks]]
-path = "/hard/xar/projects/tests/5"
+path = "/home/phobos/projects/rust/deltime/tests/5"
 mask = "*.test"
 interval = 1
 repeat = "monthly"
 visible = true
 
 [[tasks]]
-path = "/hard/xar/projects/tests/not_exists"
+path = "/home/phobos/projects/rust/deltime/tests/not_exists"
 interval = 1
 repeat = "monthly"
 visible = true
 
 [[tasks]]
-path = "/hard/xar/projects/tests/expired"
-date = "2025-02-10T15:00:21"
+path = "/home/phobos/projects/rust/deltime/tests/expired"
+date = "2025-02-12T00:52:21"
 repeat = "once"
 visible = true
