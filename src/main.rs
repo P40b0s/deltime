@@ -8,6 +8,8 @@ mod helpers;
 #[cfg(feature = "window")]
 mod window;
 mod config;
+#[cfg(feature = "beeper")]
+mod beeper;
 use std::{collections::HashMap, path::Path, sync::Arc, time::Duration};
 use futures::{task::SpawnExt, StreamExt};
 use indicatif::MultiProgress;
