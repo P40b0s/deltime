@@ -20,10 +20,13 @@ usbenum="*"
 #mountpoints="*"
 thiserror="*"
 tokio= {version = "1.41.1", features = ["macros", "rt", "rt-multi-thread", "bytes", "fs"] }
+tokio-stream="*"
 logger = {git = "https://github.com/P40b0s/logger.git"}
 async-channel="2.3.1"
 futures="0.3.31"
 uuid = {version="1.13.1", features = ["v4"]}
+async-stream="0.3.6"
+ahash = "0.8.11"
 #window
 winit = {version = "0.30.9", optional = true }
 #beeper

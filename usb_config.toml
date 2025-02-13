@@ -1,23 +1,23 @@
 [[tasks]]
-path = "/home/phobos/projects/rust/deltime/tests/usb_1"
+path = "/hard/xar/projects/rust/deltime/tests/usb_1"
 interval = 2
 repeat = "once"
 visible = true
 
 [[tasks]]
-path = "/home/phobos/projects/rust/deltime/tests/usb_2"
-date = "2025-02-12T00:58:21"
+path = "/hard/xar/projects/rust/deltime/tests/usb_2"
+date = "2025-02-13T18:00:00"
 repeat = "once"
 visible = true
 
 [[tasks]]
-path = "/home/phobos/projects/rust/deltime/tests/usb_3"
-date = "2025-02-12T01:01:21"
+path = "/hard/xar/projects/rust/deltime/tests/usb_3"
+date = "2025-02-13T18:03:00"
 repeat = "once"
 visible = true
 
 [[tasks]]
-path = "/home/phobos/projects/rust/deltime/tests/usb_4"
-date = "2025-02-12T00:58:21"
+path = "/hard/xar/projects/rust/deltime/tests/usb_4"
+date = "2025-02-13T18:00:00"
 repeat = "dialy"
 visible = false

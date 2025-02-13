@@ -6,11 +6,11 @@ use crate::structs::TaskWithProgress;
 
 pub struct Handler
 {
-    tasks: Arc<RwLock<HashMap<uuid::Uuid, TaskWithProgress>>>
+    tasks: Arc<RwLock<HashMap<u64, TaskWithProgress>>>
 }
 impl Handler
 {
-    pub fn new(tasks: Arc<RwLock<HashMap<uuid::Uuid, TaskWithProgress>>>) -> Self
+    pub fn new(tasks: Arc<RwLock<HashMap<u64, TaskWithProgress>>>) -> Self
     {
         Self
         {
@@ -18,9 +18,9 @@ impl Handler
         }
     }
 }
-impl SchedulerHandler<uuid::Uuid> for Handler
+impl SchedulerHandler<u64> for Handler
 {
-    fn tick(&self, event: scheduler::SchedulerEvent<uuid::Uuid>) -> impl std::future::Future<Output = ()> 
+    fn tick(&self, event: scheduler::SchedulerEvent<u64>) -> impl std::future::Future<Output = ()> 
     {
         let task = self.tasks.clone();
         async move
@@ -64,7 +64,8 @@ impl SchedulerHandler<uuid::Uuid> for Handler
                     if let Some(t) = guard.get_mut(&event.id)
                     {
                         t.update_progress_with_cycle(event.current as u64, event.len as u64);
-                        let _ = t.del_file().await;
+                        let r = t.del_file().await;
+                        logger::error!("{:?}", r);
                     }
                 }
             };

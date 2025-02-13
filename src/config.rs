@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fmt::format, path::Path, sync::Arc};
+use std::{collections::HashMap, fmt::format, hash::{Hash, Hasher}, path::Path, sync::Arc};
 
 use indicatif::MultiProgress;
 use scheduler::Scheduler;
@@ -29,30 +29,34 @@ impl Config
         Ok(config)
     }
 
-    pub async fn add_tasks(self, mpb: MultiProgress, tasks: Arc<RwLock<HashMap<uuid::Uuid, TaskWithProgress>>>, scheduler: Arc<Scheduler<uuid::Uuid>>)
+    pub async fn add_tasks(self, mpb: MultiProgress, tasks: Arc<RwLock<HashMap<u64, TaskWithProgress>>>, scheduler: Scheduler<u64>)
     {
         for task in self.tasks.into_iter()
         {
             let task = TaskWithProgress::new(task, &mpb);
-            let task_id = uuid::Uuid::new_v4();
-            let repeating = *task.get_strategy();
-            if task.path_is_exists()
+            let task_id = task.get_hash();
+            let exists = 
             {
-                if let Some(i) = task.get_interval()
-                {
-                    let _ = scheduler.add_interval_task(task_id, i, repeating).await;
-                }
-                else if let Some(d) = task.get_date()
-                {
-                    let _ = scheduler.add_date_task(task_id, d, repeating).await;
-                }
-            }
-            else 
+                let guard = tasks.read().await;
+                guard.contains_key(&task_id)
+            };
+            if !exists
             {
-                //let _ = mpb.println(format!("файл не найден {}", task.get_str_path()));
+                let repeating = *task.get_strategy();
+                if task.path_is_exists()
+                {
+                    if let Some(i) = task.get_interval()
+                    {
+                        let _ = scheduler.add_interval_task(task_id, i, repeating).await;
+                    }
+                    else if let Some(d) = task.get_date()
+                    {
+                        let _ = scheduler.add_date_task(task_id, d, repeating).await;
+                    }
+                }
+                let mut guard = tasks.write().await;
+                guard.insert(task_id, task);
             }
-            let mut guard = tasks.write().await;
-            guard.insert(task_id, task);
         }
     }
 }

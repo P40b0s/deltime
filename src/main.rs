@@ -15,11 +15,11 @@ use futures::{task::SpawnExt, StreamExt};
 use indicatif::MultiProgress;
 use progressbars::{progress_bar_for_datetime, progress_bar_for_interval};
 use scheduler::Scheduler;
-use structs::TaskWithProgress;
+use structs::{Task, TaskWithProgress};
 use config::Config;
 use tasker::Handler;
 use tokio::{runtime::Handle, sync::RwLock};
-use usb::{on_usb_insert, UsbDeviceInfo};
+use usb::{usb_event, UsbDeviceInfo};
 
 
 
@@ -64,76 +64,41 @@ async fn main()
     run_process(config).await;
 }
 
-// async fn load_config()
-// {
-//     let config = utilites::deserialize::<Config, _>(FILE_NAME, false, utilites::Serializer::Toml);
-//     if let Ok(cfg) = config
-//     {
-//         //del_file(FILE_NAME);
-//         println!("Запущен процесс из файла конфигурации");
-//         run_process(cfg).await;
-//     }
-//     else 
-//     {
-//         println!("Ошибка загрузки файла конфигурации {} {}",FILE_NAME, config.err().as_ref().unwrap());
-//         let mut input = String::new();
-//         std::io::stdin().read_line(&mut input).expect("Did not enter a correct string");
-//     }
-// }
-
 async fn run_process(cfg: Config)
 {
     let mpb = MultiProgress::default();
-    let tasks: Arc<RwLock<HashMap<uuid::Uuid, TaskWithProgress>>> = Arc::new(RwLock::new(HashMap::new()));
-    let scheduler: Arc<Scheduler<uuid::Uuid>> = Arc::new(Scheduler::new());
+    let tasks: Arc<RwLock<HashMap<u64, TaskWithProgress>>> = Arc::new(RwLock::new(HashMap::new()));
+    let scheduler: Scheduler<u64> = Scheduler::new();
     cfg.add_tasks(mpb.clone(), tasks.clone(), scheduler.clone()).await;
-    // for task in cfg.tasks.into_iter()
-    // {
-    //     let task = TaskWithProgress::new(task, &mpb);
-    //     let task_id = uuid::Uuid::new_v4();
-    //     let repeating = *task.get_strategy();
-    //     if task.path_is_exists()
-    //     {
-    //         if let Some(i) = task.get_interval()
-    //         {
-    //             let _ = scheduler.add_interval_task(task_id, i, repeating).await;
-    //         }
-    //         else if let Some(d) = task.get_date()
-    //         {
-    //             let _ = scheduler.add_date_task(task_id, d, repeating).await;
-    //         }
-    //     }
-    //     else 
-    //     {
-    //         let _ = mpb.println(format!("файл не найден {}", task.get_str_path()));
-    //     }
-    //     let mut guard = tasks.write().await;
-    //     guard.insert(task_id, task);
-    // }
-    let tasks_cl = tasks.clone();
-    let scheduler_cl = scheduler.clone();
-    on_usb_insert(move |c|
-    {
-        let path = Path::new(&c).join(config::FILE_NAME);
-        logger::debug!("usb path: {}", path.display());
-        if let Ok(cfg) = Config::load_from_path(path)
-        {
-            let mpb_cl = mpb.clone();
-            let tasks_async = tasks_cl.clone();
-            let scheduler_async = scheduler_cl.clone();
-            tokio::spawn(async move 
-            {
-                cfg.add_tasks(mpb_cl, tasks_async, scheduler_async).await
-            });
-            
-        }
-        //logger::info!("callback pathbuf {}", c.display());
-    });
-    //TODO insert usb handler here
+    #[cfg(all(target_os = "linux", feature = "usb"))]
+    linux_usb_checker(mpb.clone(), tasks.clone(), scheduler.clone());
     let handler = Handler::new(tasks);
     //#[cfg(feature = "window")]
     //window::start();
     scheduler.run(handler).await;
+}
+
+
+fn linux_usb_checker(mpb: MultiProgress, tasks:  Arc<RwLock<HashMap<u64, TaskWithProgress>>>, scheduler: Scheduler<u64>)
+{   
+    tokio::spawn(async move 
+    {
+        if let Ok(stream) = usb_event().as_mut()
+        {
+            while let Some(path) = stream.next().await
+            {
+                let path = Path::new(&path).join(config::FILE_NAME);
+                //logger::debug!("usb path: {}", path.display());
+                if let Ok(cfg) = Config::load_from_path(path)
+                {
+                    let mpb_cl = mpb.clone();
+                    let tasks_async = tasks.clone();
+                    let scheduler_async = scheduler.clone();
+                    cfg.add_tasks(mpb_cl, tasks_async, scheduler_async).await
+                }
+            }
+        }
+    });
 }
 
 
@@ -166,20 +131,28 @@ mod tests
     #[test]
     fn test_serialize()
     {
+        //let path = "/home/phobos/projects/rust/deltime/tests/";
+        let path = "/hard/xar/projects/rust/deltime/tests/";
+        let name = |n: &str|
+        {
+            [path, n].concat()
+        };
         let _ = logger::StructLogger::new_default();
-        let _ = std::fs::File::create_new("/hard/xar/projects/tests/1");
-        let _ = std::fs::File::create_new("/hard/xar/projects/tests/2");
-        let _ = std::fs::File::create_new("/hard/xar/projects/tests/3");
-        let _ = std::fs::File::create_new("/hard/xar/projects/tests/4");
-        let _ = std::fs::File::create_new("/hard/xar/projects/tests/expired");
-        let _ = std::fs::create_dir("/hard/xar/projects/tests/5");
+        let _ = std::fs::File::create_new(name("1"));
+        let _ = std::fs::File::create_new(name("2"));
+        let _ = std::fs::File::create_new(name("3"));
+        let _ = std::fs::File::create_new(name("4"));
+        let _ = std::fs::File::create_new(name("expired"));
+        let _ = std::fs::create_dir(name("5"));
+        let _ = std::fs::File::create_new(name("5/delme_by_extension.delme"));
+        let _ = std::fs::File::create_new(name("5/not_delme.test"));
         
         let cfg = Config
         {
                 tasks: vec![
                 Task
                 {
-                    path: PathBuf::from("/hard/xar/projects/tests/1"),
+                    path: PathBuf::from(name("1")),
                     mask: None,
                     interval: Some(2),
                     date: None,
@@ -188,7 +161,7 @@ mod tests
                 },
                 Task
                 {
-                    path: PathBuf::from("/hard/xar/projects/tests/2"),
+                    path: PathBuf::from(name("2")),
                     mask: None,
                     interval: None,
                     date: Some(Date::now().add_minutes(3)),
@@ -197,7 +170,7 @@ mod tests
                 },
                 Task
                 {
-                    path: PathBuf::from("/hard/xar/projects/tests/3"),
+                    path: PathBuf::from(name("3")),
                     mask: None,
                     interval: None,
                     date: Some(Date::now().add_minutes(6)),
@@ -206,7 +179,7 @@ mod tests
                 },
                 Task
                 {
-                    path: PathBuf::from("/hard/xar/projects/tests/4"),
+                    path: PathBuf::from(name("4")),
                     mask: None,
                     interval: None,
                     date: Some(Date::now().add_minutes(3)),
@@ -215,8 +188,8 @@ mod tests
                 },
                 Task
                 {
-                    path: PathBuf::from("/hard/xar/projects/tests/5"),
-                    mask: Some("*.test".into()),
+                    path: PathBuf::from(name("5")),
+                    mask: Some("*.delme".into()),
                     interval: Some(1),
                     date: None,
                     repeat: RepeatingStrategy::Monthly,
@@ -224,7 +197,7 @@ mod tests
                 },
                 Task
                 {
-                    path: PathBuf::from("/hard/xar/projects/tests/not_exists"),
+                    path: PathBuf::from(name("not_exists")),
                     mask: None,
                     interval: Some(1),
                     date: None,
@@ -233,7 +206,7 @@ mod tests
                 },
                 Task
                 {
-                    path: PathBuf::from("/hard/xar/projects/tests/expired"),
+                    path: PathBuf::from(name("expired")),
                     mask: None,
                     interval: None,
                     date: Some(Date::now().sub_minutes(3)),
@@ -243,6 +216,53 @@ mod tests
             ]
         };
         let r = utilites::serialize(cfg, FILE_NAME, false, utilites::Serializer::Toml);
+        //usb test
+        let _ = std::fs::File::create_new(name("usb_1"));
+        let _ = std::fs::File::create_new(name("usb_2"));
+        let _ = std::fs::File::create_new(name("usb_3"));
+        let _ = std::fs::File::create_new(name("usb_4"));
+        let cfg = Config
+        {
+                tasks: vec![
+                Task
+                {
+                    path: PathBuf::from(name("usb_1")),
+                    mask: None,
+                    interval: Some(2),
+                    date: None,
+                    repeat: RepeatingStrategy::Once,
+                    visible: true
+                },
+                Task
+                {
+                    path: PathBuf::from(name("usb_2")),
+                    mask: None,
+                    interval: None,
+                    date: Some(Date::now().add_minutes(3)),
+                    repeat: RepeatingStrategy::Once,
+                    visible: true
+                },
+                Task
+                {
+                    path: PathBuf::from(name("usb_3")),
+                    mask: None,
+                    interval: None,
+                    date: Some(Date::now().add_minutes(6)),
+                    repeat: RepeatingStrategy::Once,
+                    visible: true
+                },
+                Task
+                {
+                    path: PathBuf::from(name("usb_4")),
+                    mask: None,
+                    interval: None,
+                    date: Some(Date::now().add_minutes(3)),
+                    repeat: RepeatingStrategy::Dialy,
+                    visible: false
+                },
+            ]
+        };
+        let r = utilites::serialize(cfg, "usb_config.toml", false, utilites::Serializer::Toml);
         //super::main();
         logger::info!("{:?}", r)
     }
