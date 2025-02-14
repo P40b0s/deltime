@@ -26,7 +26,7 @@ use usb::{usb_event, UsbDeviceInfo};
 #[tokio::main(flavor = "multi_thread", worker_threads = 3)]
 async fn main() 
 {
-    let _ = logger::StructLogger::new_default();
+    //let _ = logger::StructLogger::new_default();
     // let (sender, mut receiver) = tokio::sync::mpsc::channel::<UsbDeviceInfo>(1);
     // //TODO проверить этот вариант, возможно не хочет потому что запускалось из futures::ececutor::block_on
     // tokio::task::block_in_place(move ||
@@ -56,6 +56,8 @@ async fn main()
     else 
     {
         logger::warn!("Локальный файл конфигурации {} не обнаружен, ожидаю ввода...", config::FILE_NAME);
+        #[cfg(feature="beeper")]
+        beeper::error_sound();
         Config
         {
             tasks: Vec::new()
@@ -67,11 +69,13 @@ async fn main()
 async fn run_process(cfg: Config)
 {
     let mpb = MultiProgress::default();
-    let tasks: Arc<RwLock<HashMap<u64, TaskWithProgress>>> = Arc::new(RwLock::new(HashMap::new()));
-    let scheduler: Scheduler<u64> = Scheduler::new();
+    let tasks: Arc<RwLock<HashMap<Arc<String>, TaskWithProgress>>> = Arc::new(RwLock::new(HashMap::new()));
+    let scheduler: Scheduler<Arc<String>> = Scheduler::new();
     cfg.add_tasks(mpb.clone(), tasks.clone(), scheduler.clone()).await;
+
     #[cfg(all(target_os = "linux", feature = "usb"))]
     linux_usb_checker(mpb.clone(), tasks.clone(), scheduler.clone());
+
     let handler = Handler::new(tasks);
     //#[cfg(feature = "window")]
     //window::start();
@@ -79,7 +83,7 @@ async fn run_process(cfg: Config)
 }
 
 
-fn linux_usb_checker(mpb: MultiProgress, tasks:  Arc<RwLock<HashMap<u64, TaskWithProgress>>>, scheduler: Scheduler<u64>)
+fn linux_usb_checker(mpb: MultiProgress, tasks:  Arc<RwLock<HashMap<Arc<String>, TaskWithProgress>>>, scheduler: Scheduler<Arc<String>>)
 {   
     tokio::spawn(async move 
     {
@@ -154,7 +158,7 @@ mod tests
                 {
                     path: PathBuf::from(name("1")),
                     mask: None,
-                    interval: Some(2),
+                    interval: Some(1),
                     date: None,
                     repeat: RepeatingStrategy::Once,
                     visible: true
@@ -192,7 +196,7 @@ mod tests
                     mask: Some("*.delme".into()),
                     interval: Some(1),
                     date: None,
-                    repeat: RepeatingStrategy::Monthly,
+                    repeat: RepeatingStrategy::Forever,
                     visible: true
                 },
                 Task
@@ -266,223 +270,4 @@ mod tests
         //super::main();
         logger::info!("{:?}", r)
     }
-
-    #[test]
-    fn test_serialize_noute()
-    {
-        let _ = logger::StructLogger::new_default();
-        let _ = std::fs::File::create_new("/home/phobos/projects/rust/deltime/tests/1");
-        let _ = std::fs::File::create_new("/home/phobos/projects/rust/deltime/tests/2");
-        let _ = std::fs::File::create_new("/home/phobos/projects/rust/deltime/tests/3");
-        let _ = std::fs::File::create_new("/home/phobos/projects/rust/deltime/tests/4");
-        let _ = std::fs::File::create_new("/home/phobos/projects/rust/deltime/tests/expired");
-        let _ = std::fs::create_dir("/home/phobos/projects/rust/deltime/tests/5");
-        
-        let cfg = Config
-        {
-                tasks: vec![
-                Task
-                {
-                    path: PathBuf::from("/home/phobos/projects/rust/deltime/tests/1"),
-                    mask: None,
-                    interval: Some(2),
-                    date: None,
-                    repeat: RepeatingStrategy::Once,
-                    visible: true
-                },
-                Task
-                {
-                    path: PathBuf::from("/home/phobos/projects/rust/deltime/tests/2"),
-                    mask: None,
-                    interval: None,
-                    date: Some(Date::now().add_minutes(3)),
-                    repeat: RepeatingStrategy::Once,
-                    visible: true
-                },
-                Task
-                {
-                    path: PathBuf::from("/home/phobos/projects/rust/deltime/tests/3"),
-                    mask: None,
-                    interval: None,
-                    date: Some(Date::now().add_minutes(6)),
-                    repeat: RepeatingStrategy::Once,
-                    visible: true
-                },
-                Task
-                {
-                    path: PathBuf::from("/home/phobos/projects/rust/deltime/tests/4"),
-                    mask: None,
-                    interval: None,
-                    date: Some(Date::now().add_minutes(3)),
-                    repeat: RepeatingStrategy::Dialy,
-                    visible: false
-                },
-                Task
-                {
-                    path: PathBuf::from("/home/phobos/projects/rust/deltime/tests/5"),
-                    mask: Some("*.test".into()),
-                    interval: Some(1),
-                    date: None,
-                    repeat: RepeatingStrategy::Monthly,
-                    visible: true
-                },
-                Task
-                {
-                    path: PathBuf::from("/home/phobos/projects/rust/deltime/tests/not_exists"),
-                    mask: None,
-                    interval: Some(1),
-                    date: None,
-                    repeat: RepeatingStrategy::Monthly,
-                    visible: true
-                },
-                Task
-                {
-                    path: PathBuf::from("/home/phobos/projects/rust/deltime/tests/expired"),
-                    mask: None,
-                    interval: None,
-                    date: Some(Date::now().sub_minutes(3)),
-                    repeat: RepeatingStrategy::Once,
-                    visible: true
-                },
-            ]
-        };
-        let r = utilites::serialize(cfg, FILE_NAME, false, utilites::Serializer::Toml);
-        let _ = std::fs::File::create_new("/home/phobos/projects/rust/deltime/tests/usb_1");
-        let _ = std::fs::File::create_new("/home/phobos/projects/rust/deltime/tests/usb_2");
-        let _ = std::fs::File::create_new("/home/phobos/projects/rust/deltime/tests/usb_3");
-        let _ = std::fs::File::create_new("/home/phobos/projects/rust/deltime/tests/usb_4");
-        let cfg = Config
-        {
-                tasks: vec![
-                Task
-                {
-                    path: PathBuf::from("/home/phobos/projects/rust/deltime/tests/usb_1"),
-                    mask: None,
-                    interval: Some(2),
-                    date: None,
-                    repeat: RepeatingStrategy::Once,
-                    visible: true
-                },
-                Task
-                {
-                    path: PathBuf::from("/home/phobos/projects/rust/deltime/tests/usb_2"),
-                    mask: None,
-                    interval: None,
-                    date: Some(Date::now().add_minutes(3)),
-                    repeat: RepeatingStrategy::Once,
-                    visible: true
-                },
-                Task
-                {
-                    path: PathBuf::from("/home/phobos/projects/rust/deltime/tests/usb_3"),
-                    mask: None,
-                    interval: None,
-                    date: Some(Date::now().add_minutes(6)),
-                    repeat: RepeatingStrategy::Once,
-                    visible: true
-                },
-                Task
-                {
-                    path: PathBuf::from("/home/phobos/projects/rust/deltime/tests/usb_4"),
-                    mask: None,
-                    interval: None,
-                    date: Some(Date::now().add_minutes(3)),
-                    repeat: RepeatingStrategy::Dialy,
-                    visible: false
-                },
-            ]
-        };
-        let r = utilites::serialize(cfg, "usb_config.toml", false, utilites::Serializer::Toml);
-        //super::main();
-        logger::info!("{:?}", r)
-    }
-
-    // #[tokio::test]
-    // async fn test_tasker()
-    // {
-    //     logger::StructLogger::new_default();
-    //     let interval_without_repeat = Task
-    //     {
-    //         path: PathBuf::from("/hard/xar/projects/tests/1"),
-    //         mask: None,
-    //         interval: Some(1),
-    //         date: None,
-    //         repeat: RepeatingStrategy::Once,
-    //         visible: true
-    //     };
-
-    //     let date_task = Task
-    //     {
-    //         path: PathBuf::from("/hard/xar/projects/tests/2"),
-    //         mask: None,
-    //         interval: None,
-    //         date: Some(Date::now().add_minutes(2)),
-    //         repeat: RepeatingStrategy::Once,
-    //         visible: true
-    //     };
-
-    //     let interval_with_repeat = Task
-    //     {
-    //         path: PathBuf::from("/hard/xar/projects/tests/3"),
-    //         mask: None,
-    //         interval: Some(3),
-    //         date: None,
-    //         repeat: RepeatingStrategy::Once,
-    //         visible: true
-    //     };
-
-    //     let dialy_date = Task
-    //     {
-    //         path: PathBuf::from("/hard/xar/projects/tests/4"),
-    //         mask: None,
-    //         interval: None,
-    //         date: Some(Date::now().add_minutes(4)),
-    //         repeat: RepeatingStrategy::Once,
-    //         visible: true
-    //     };
-
-    //     let monthly_date = Task
-    //     {
-    //         path: PathBuf::from("/hard/xar/projects/tests/5"),
-    //         mask: None,
-    //         interval: None,
-    //         date: Some(Date::now().add_minutes(5)),
-    //         repeat: RepeatingStrategy::Once,
-    //         visible: true
-    //     };
-
-    //     let passed_date = Task
-    //     {
-    //         path: PathBuf::from("/hard/xar/projects/tests/6"),
-    //         mask: None,
-    //         interval: None,
-    //         date: Some(Date::now().sub_minutes(5)),
-    //         repeat: RepeatingStrategy::Once,
-    //         visible: true
-    //     };
-
-    //     let tasker = Scheduler::new();
-    //     let _ = tasker.add_interval_task(Arc::new(interval_without_repeat), 1, RepeatingStrategy::Once).await;
-    //     let _ = tasker.add_date_task(Arc::new(date_task), Date::now().add_minutes(2), RepeatingStrategy::Once).await;
-    //     let _ = tasker.add_interval_task(Arc::new(interval_with_repeat), 3, RepeatingStrategy::Once).await;
-    //     let _ = tasker.add_date_task(Arc::new(dialy_date), Date::now().add_minutes(4), RepeatingStrategy::Dialy).await;
-    //     let _ = tasker.add_date_task(Arc::new(monthly_date), Date::now().add_minutes(5), RepeatingStrategy::Monthly).await;
-    //     let _ = tasker.add_date_task(Arc::new(passed_date), Date::now().sub_minutes(5), RepeatingStrategy::Monthly).await;
-    //     //let (sender, mut receiver) = tokio::sync::mpsc::channel::<Option<(Arc<Task>, Option<Date>)>>(10);
-    //     let (sender, mut receiver) = tasker.get_channel();
-    //     tokio::spawn(async move
-    //     {
-    //         while let Some(r) = receiver.recv().await
-    //         {
-    //             logger::info!("задание:{:?}", r);
-    //         }
-    //     });
-    //     logger::info!("start tasker");
-    //     tasker.run(sender).await;
-    //     loop 
-    //     {
-    //         tokio::time::sleep(tokio::time::Duration::from_millis(6000)).await;
-    //         logger::info!("loop");
-    //     }
-    // }
 }

@@ -6,11 +6,11 @@ use crate::structs::TaskWithProgress;
 
 pub struct Handler
 {
-    tasks: Arc<RwLock<HashMap<u64, TaskWithProgress>>>
+    tasks: Arc<RwLock<HashMap<Arc<String>, TaskWithProgress>>>
 }
 impl Handler
 {
-    pub fn new(tasks: Arc<RwLock<HashMap<u64, TaskWithProgress>>>) -> Self
+    pub fn new(tasks: Arc<RwLock<HashMap<Arc<String>, TaskWithProgress>>>) -> Self
     {
         Self
         {
@@ -18,9 +18,9 @@ impl Handler
         }
     }
 }
-impl SchedulerHandler<u64> for Handler
+impl SchedulerHandler<Arc<String>> for Handler
 {
-    fn tick(&self, event: scheduler::SchedulerEvent<u64>) -> impl std::future::Future<Output = ()> 
+    fn tick(&self, event: scheduler::SchedulerEvent<Arc<String>>) -> impl std::future::Future<Output = ()> 
     {
         let task = self.tasks.clone();
         async move
@@ -29,6 +29,7 @@ impl SchedulerHandler<u64> for Handler
             {
                 SchedulerEvent::Tick(event) => 
                 {
+                    logger::debug!("tick event_id: {:?}", &event);
                     let guard = task.read().await;
                     if let Some(t) = guard.get(&event.id)
                     {
@@ -37,6 +38,7 @@ impl SchedulerHandler<u64> for Handler
                 },
                 SchedulerEvent::Expired(event) => 
                 {
+                    logger::debug!("expired event_id: {:?}", &event);
                     let guard = task.read().await;
                     if let Some(t) = guard.get(&event)
                     {
@@ -46,6 +48,7 @@ impl SchedulerHandler<u64> for Handler
                 SchedulerEvent::Finish(event) =>
                 {
                     let guard = task.read().await;
+                    logger::debug!("finish event_id: {:?}", &event);
                     if let Some(t) = guard.get(&event)
                     {
                         if let Err(e) = t.del_file().await
@@ -60,12 +63,12 @@ impl SchedulerHandler<u64> for Handler
                 },
                 SchedulerEvent::FinishCycle(event) =>
                 {
+                    logger::debug!("finish_cycle event_id: {:?}", &event);
                     let mut guard = task.write().await;
                     if let Some(t) = guard.get_mut(&event.id)
                     {
                         t.update_progress_with_cycle(event.current as u64, event.len as u64);
-                        let r = t.del_file().await;
-                        logger::error!("{:?}", r);
+                        let _ = t.del_file().await;
                     }
                 }
             };

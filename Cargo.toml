@@ -7,7 +7,7 @@ edition = "2021"
 default = ["window", "usb", "winusb", "beeper"]
 window = ["dep:winit"]
 usb = ["dep:udev"]
-beeper = ["dep:web-audio-api"]
+beeper = ["dep:actually_beep"]
 winusb = ["dep:wmi"]
 
 [dependencies]
@@ -16,22 +16,17 @@ scheduler = {git = "https://github.com/P40b0s/scheduler.git"}
 serde = { version = "1.0.216", features = ["derive"] }
 serde_json = "1.0.133"
 indicatif= {version = "0.17.9", git = "https://github.com/console-rs/indicatif.git"}
-usbenum="*"
 #mountpoints="*"
 thiserror="*"
 tokio= {version = "1.41.1", features = ["macros", "rt", "rt-multi-thread", "bytes", "fs"] }
-tokio-stream="*"
 logger = {git = "https://github.com/P40b0s/logger.git"}
-async-channel="2.3.1"
 futures="0.3.31"
 uuid = {version="1.13.1", features = ["v4"]}
-async-stream="0.3.6"
-ahash = "0.8.11"
+blake3 = "1.5.5"
 #window
 winit = {version = "0.30.9", optional = true }
 #beeper
-web-audio-api = {version = "*", optional = true}
-actually_beep = "0.1.1"
+actually_beep = {version = "0.1.1", optional = true}
 #usb
 [target.'cfg(target_os = "linux")'.dependencies]
 udev = { version="0.9.3", optional = true, features=["mio10"]}

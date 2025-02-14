@@ -1,4 +1,4 @@
-use std::{borrow::Cow, hash::{self, Hash, Hasher}, path::{Path, PathBuf}};
+use std::{borrow::Cow, hash::{self, BuildHasher, BuildHasherDefault, Hash, Hasher}, os::unix::ffi::OsStrExt, path::{Path, PathBuf}};
 use crate::helpers::time_diff;
 use indicatif::{MultiProgress, ProgressBar};
 use scheduler::RepeatingStrategy;
@@ -29,17 +29,7 @@ pub struct Task
     #[serde(default)]
     pub visible: bool
 }
-impl Hash for Task
-{
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) 
-    {
-        self.path.hash(state);
-        if let Some(mask) = self.mask.as_ref()
-        {
-            mask.hash(state);
-        }
-    }
-}
+
 impl PartialEq for Task
 {
     fn eq(&self, other: &Self) -> bool 
@@ -58,6 +48,18 @@ impl Task
     pub fn get_str_path(&self) -> &str
     {
         &self.path.as_os_str().to_str().unwrap_or_default()
+    }
+    pub fn get_hash(&self) -> String
+    {
+        let mut hasher = blake3::Hasher::new();
+        hasher.update(self.path.as_os_str().as_bytes());
+        if let Some(mask) = self.mask.as_ref()
+        {
+            hasher.update(mask.as_bytes());
+        }
+        let res = hasher.finalize();
+        let string = format!("{}", res.to_hex());
+        string
     }
 }
 
@@ -104,13 +106,6 @@ pub struct TaskWithProgress
 {
     task: Task,
     pb: ProgressBar
-}
-impl Hash for TaskWithProgress
-{
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) 
-    {
-        self.task.hash(state);
-    }
 }
 impl PartialEq for TaskWithProgress
 {
@@ -190,12 +185,7 @@ impl TaskWithProgress
     {
         &self.task.get_path()
     }
-    pub fn get_hash(&self) -> u64
-    {
-        let mut hasher = ahash::AHasher::default();
-        self.task.hash(&mut hasher);
-        hasher.finish()
-    }
+    
     pub fn get_strategy(&self) -> &RepeatingStrategy
     {
         &self.task.repeat
@@ -266,7 +256,6 @@ impl TaskWithProgress
         let metadata = tokio::fs::metadata(path).await;
         if let Ok(md) = metadata
         {
-            logger::info!("wtf? {:?}", str_path);
             if md.is_file()
             {
                 let del = tokio::fs::remove_file(path).await;
@@ -288,16 +277,12 @@ impl TaskWithProgress
             }
             if md.is_dir()
             {
-                logger::info!("is_dir {:?}", md);
                 if let Some(mask ) = self.task.mask.as_ref()
                 {
-                    logger::info!("mask {}", mask);
                     return if let Ok(files) = utilites::io::get_files_by_mask(path, mask).await
                     {
-                        logger::info!("mask_files {:?}", &files);
                         for f in files
                         {
-                            logger::info!("del_by_mask {}", f.display());
                             let _ = tokio::fs::remove_file(&f).await;
                         }
                         Ok(())
@@ -331,6 +316,7 @@ impl TaskWithProgress
         Err("Ошибка получения метадаты".to_owned())
         
     }
+
     fn set_date_message<P: AsRef<Path>>(pb: &ProgressBar, visible: bool, date: &Date, path: P, mask: Option<&String>, strategy: &RepeatingStrategy)
     {
         let d = date.format(utilites::DateFormat::DotDate);

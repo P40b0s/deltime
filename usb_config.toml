@@ -6,18 +6,18 @@ visible = true
 
 [[tasks]]
 path = "/hard/xar/projects/rust/deltime/tests/usb_2"
-date = "2025-02-13T18:00:00"
+date = "2025-02-14T16:12:12"
 repeat = "once"
 visible = true
 
 [[tasks]]
 path = "/hard/xar/projects/rust/deltime/tests/usb_3"
-date = "2025-02-13T18:03:00"
+date = "2025-02-14T16:15:12"
 repeat = "once"
 visible = true
 
 [[tasks]]
 path = "/hard/xar/projects/rust/deltime/tests/usb_4"
-date = "2025-02-13T18:00:00"
+date = "2025-02-14T16:12:12"
 repeat = "dialy"
 visible = false

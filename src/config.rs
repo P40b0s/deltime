@@ -1,7 +1,7 @@
 use std::{collections::HashMap, fmt::format, hash::{Hash, Hasher}, path::Path, sync::Arc};
 
 use indicatif::MultiProgress;
-use scheduler::Scheduler;
+use scheduler::{RepeatingStrategy, Scheduler};
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
 
@@ -29,12 +29,15 @@ impl Config
         Ok(config)
     }
 
-    pub async fn add_tasks(self, mpb: MultiProgress, tasks: Arc<RwLock<HashMap<u64, TaskWithProgress>>>, scheduler: Scheduler<u64>)
+    pub async fn add_tasks(self, mpb: MultiProgress, tasks: Arc<RwLock<HashMap<Arc<String>, TaskWithProgress>>>, scheduler: Scheduler<Arc<String>>)
     {
+        #[cfg(feature="beeper")]
+        super::beeper::ok_sound();
         for task in self.tasks.into_iter()
         {
+            let task_id = Arc::new(task.get_hash());
             let task = TaskWithProgress::new(task, &mpb);
-            let task_id = task.get_hash();
+            logger::debug!("new task fom config: {:?} id: {}", &task, &task_id);
             let exists = 
             {
                 let guard = tasks.read().await;
@@ -47,11 +50,21 @@ impl Config
                 {
                     if let Some(i) = task.get_interval()
                     {
-                        let _ = scheduler.add_interval_task(task_id, i, repeating).await;
+                        if let RepeatingStrategy::Forever | RepeatingStrategy::Dialy = task.get_strategy()
+                        {
+                            logger::debug!("task added to scheduler intervals: {}", &task_id);
+                            let _ = scheduler.add_interval_task(task_id.clone(), i, repeating).await;
+                        }
+                        else 
+                        {
+                            logger::error!("В задаче {:?} флаг `repeat` должeн быть установлен на `once` `dialy` или `forever`, задача выполнена не будет", task.get_str_path());    
+                        }
+                        
                     }
                     else if let Some(d) = task.get_date()
                     {
-                        let _ = scheduler.add_date_task(task_id, d, repeating).await;
+                        logger::debug!("task added to scheduler dates: {}", &task_id);
+                        let _ = scheduler.add_date_task(task_id.clone(), d, repeating).await;
                     }
                 }
                 let mut guard = tasks.write().await;

@@ -1,15 +1,8 @@
-
-use std::{collections::HashMap, future::Future, ops::Deref, path::PathBuf, pin::Pin, sync::Arc};
-use crate::structs::TaskWithProgress;
-use crate::error::Error;
-
-use super::{usb_device_info::{self, DeviceInfo, UsbDeviceInfo}};
-use async_stream::stream;
-use futures::{stream, Stream, StreamExt};
-use scheduler::Scheduler;
-use tokio_stream::wrappers::ReceiverStream;
-use udev::{mio::{Events, Interest, Poll, Token}, Device, Enumerator, Event, EventType, MonitorSocket, MonitorSocketIter};
-use tokio::{runtime::Handle, sync::{mpsc::{Receiver, Sender}, Mutex, RwLock}};
+use std::path::PathBuf;
+use crate::{error::Error, helpers::ReceiverStream};
+use super::usb_device_info::{DeviceInfo, UsbDeviceInfo};
+use futures::{Stream, StreamExt};
+use udev::{mio::{Events, Interest, Poll, Token}, Device, EventType, MonitorSocket, MonitorSocketIter};
 use utilites::retry_sync;
 
 
@@ -178,7 +171,10 @@ pub fn usb_event() -> Result<impl Stream<Item = PathBuf>, Error>
             return Ok(());
         };
         let res: Result<(), Error> = r();
-        logger::error!("{:?}", res);
+        if res.is_err()
+        {
+            logger::error!("{:?}", res.err().unwrap());
+        }
     });
     Ok(ReceiverStream::new(receiver))
 }
@@ -209,6 +205,7 @@ impl Polling
             events
         })
     }
+
     pub fn register(mut self) -> Result<Self, Error>
     {
         self.poll.registry().register(
@@ -232,6 +229,7 @@ impl Polling
             Ok(None)
         }
     }
+
     fn get_socket() -> Option<MonitorSocket>
     {
         if let Ok(builder) = udev::MonitorBuilder::new()
