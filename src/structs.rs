@@ -1,4 +1,4 @@
-use std::{borrow::Cow, hash::{self, BuildHasher, BuildHasherDefault, Hash, Hasher}, os::unix::ffi::OsStrExt, path::{Path, PathBuf}};
+use std::{borrow::Cow, hash::{self, BuildHasher, BuildHasherDefault, Hash, Hasher},  path::{Path, PathBuf}};
 use crate::helpers::time_diff;
 use indicatif::{MultiProgress, ProgressBar};
 use scheduler::RepeatingStrategy;
@@ -52,7 +52,7 @@ impl Task
     pub fn get_hash(&self) -> String
     {
         let mut hasher = blake3::Hasher::new();
-        hasher.update(self.path.as_os_str().as_bytes());
+        hasher.update(self.get_str_path().as_bytes());
         if let Some(mask) = self.mask.as_ref()
         {
             hasher.update(mask.as_bytes());
@@ -223,8 +223,13 @@ impl TaskWithProgress
     {
         if let Some(_) = self.task.date.as_ref()
         {
-            self.pb.set_length(len as u64);
-            self.pb.set_position(current);  
+            if self.pb.length().unwrap_or_default() != len as u64
+            {
+                self.pb.set_length(len as u64);
+                let new_date = self.task.date.as_ref().unwrap().clone().add_seconds(len as i64);
+                Self::set_date_message(&self.pb, self.task.visible, &new_date, self.get_path(), self.task.mask.as_ref(), self.get_strategy());
+            }
+            self.pb.set_position(current);
         }
         else if let Some(_) = self.task.interval.as_ref()
         {

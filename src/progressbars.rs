@@ -7,17 +7,7 @@ use utilites::Date;
 pub fn progress_bar_for_interval(mpb: &MultiProgress, repeating: &RepeatingStrategy, len: u32) -> ProgressBar
 {
     let pb = mpb.add(ProgressBar::new(len as u64));
-    // let msg= if visible
-    // {
-    //     [" -> ", fp].concat()
-    // }
-    // else
-    // {
-    //     "".to_owned()
-    // };
     pb.enable_steady_tick(Duration::from_millis(120));
-    //pb.set_message(msg);
-    //set_interval_message(&pb, visible, fp);
     let sty = if repeating == &RepeatingStrategy::Once
     {
         ProgressStyle::with_template(
@@ -91,8 +81,6 @@ pub fn progress_bar_for_datetime(mpb: &MultiProgress, len: u32) -> ProgressBar
 {
 
     let pb = mpb.add(ProgressBar::new(len as u64));
-    //pb.set_message(msg);
-    //set_date_message(&pb, visible, target_date, fp);
     pb.enable_steady_tick(Duration::from_millis(120));
     let sty = ProgressStyle::with_template(
         "[{elapsed_precise}] {prefix} {spinner:.blue}    {bar:40.green/cyan} [{msg}]",

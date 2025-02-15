@@ -161,6 +161,7 @@ pub fn usb_event() -> Result<impl Stream<Item = PathBuf>, Error>
                             {
                                 if let Some(mp) = device_handler.mount_point()
                                 {
+                                    logger::debug!("обнаружена точка монтирования usb flash накопителя: {}", mp.display());
                                     let _ = sender.blocking_send(mp);
                                 }
                             }

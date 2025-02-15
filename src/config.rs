@@ -5,7 +5,7 @@ use scheduler::{RepeatingStrategy, Scheduler};
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
 
-use crate::structs::{Task, TaskWithProgress};
+use crate::{beeper, structs::{Task, TaskWithProgress}};
 
 pub const FILE_NAME: &str = "config.toml";
 
@@ -16,7 +16,24 @@ pub struct Config
 }
 impl Config
 {
-    pub fn load_local() -> Result<Self, crate::error::Error>
+    pub async fn load() -> Self
+    {
+        if let Ok(config) = Config::load_local()
+        {
+            config
+        }
+        else 
+        {
+            logger::warn!("Локальный файл конфигурации {} не обнаружен, ожидаю ввода...", FILE_NAME);
+            #[cfg(feature="beeper")]
+            beeper::Beeper::ok().await;
+            Config
+            {
+                tasks: Vec::new()
+            }
+        }
+    }
+    fn load_local() -> Result<Self, crate::error::Error>
     {
 
         let config = utilites::deserialize::<Config, _>(FILE_NAME, false, utilites::Serializer::Toml)?;
@@ -32,7 +49,7 @@ impl Config
     pub async fn add_tasks(self, mpb: MultiProgress, tasks: Arc<RwLock<HashMap<Arc<String>, TaskWithProgress>>>, scheduler: Scheduler<Arc<String>>)
     {
         #[cfg(feature="beeper")]
-        super::beeper::ok_sound();
+        super::beeper::Beeper::ok().await;
         for task in self.tasks.into_iter()
         {
             let task_id = Arc::new(task.get_hash());
@@ -50,25 +67,29 @@ impl Config
                 {
                     if let Some(i) = task.get_interval()
                     {
-                        if let RepeatingStrategy::Forever | RepeatingStrategy::Dialy = task.get_strategy()
+                        if scheduler.add_interval_task(task_id.clone(), i, repeating).await
                         {
-                            logger::debug!("task added to scheduler intervals: {}", &task_id);
-                            let _ = scheduler.add_interval_task(task_id.clone(), i, repeating).await;
+                            let mut guard = tasks.write().await;
+                            guard.insert(task_id, task);
                         }
                         else 
                         {
-                            logger::error!("В задаче {:?} флаг `repeat` должeн быть установлен на `once` `dialy` или `forever`, задача выполнена не будет", task.get_str_path());    
+                            task.finish_with_err(["Ошибка добавления задачи ", task.get_str_path()].concat());    
                         }
-                        
                     }
                     else if let Some(d) = task.get_date()
                     {
-                        logger::debug!("task added to scheduler dates: {}", &task_id);
-                        let _ = scheduler.add_date_task(task_id.clone(), d, repeating).await;
+                        if scheduler.add_date_task(task_id.clone(), d, repeating).await
+                        {
+                            let mut guard = tasks.write().await;
+                            guard.insert(task_id, task);
+                        }
+                        else 
+                        {
+                            task.finish_with_err(["Ошибка добавления задачи ", task.get_str_path()].concat());    
+                        }
                     }
                 }
-                let mut guard = tasks.write().await;
-                guard.insert(task_id, task);
             }
         }
     }

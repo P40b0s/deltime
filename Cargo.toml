@@ -4,11 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 [features]
-default = ["window", "usb", "winusb", "beeper"]
+default = ["window", "usb", "beeper"]
 window = ["dep:winit"]
-usb = ["dep:udev"]
+lin_usb = ["dep:udev"]
 beeper = ["dep:actually_beep"]
-winusb = ["dep:wmi"]
+win_usb = ["dep:wmi"]
+usb = ["lin_usb", "win_usb"]
 
 [dependencies]
 utilites = {git = "https://github.com/P40b0s/help_utilites.git", package = "utilites", default-features = false, features = ["dates", "retry", "async-io"]}
@@ -16,12 +17,10 @@ scheduler = {git = "https://github.com/P40b0s/scheduler.git"}
 serde = { version = "1.0.216", features = ["derive"] }
 serde_json = "1.0.133"
 indicatif= {version = "0.17.9", git = "https://github.com/console-rs/indicatif.git"}
-#mountpoints="*"
-thiserror="*"
-tokio= {version = "1.41.1", features = ["macros", "rt", "rt-multi-thread", "bytes", "fs"] }
+thiserror="2.0.11"
+tokio= {version = "1.43.0", features = ["macros", "rt", "fs"] }
 logger = {git = "https://github.com/P40b0s/logger.git"}
 futures="0.3.31"
-uuid = {version="1.13.1", features = ["v4"]}
 blake3 = "1.5.5"
 #window
 winit = {version = "0.30.9", optional = true }
