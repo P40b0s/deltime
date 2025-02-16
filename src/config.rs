@@ -1,7 +1,7 @@
-use std::{collections::HashMap, fmt::format, hash::{Hash, Hasher}, path::Path, sync::Arc};
+use std::{collections::HashMap, path::Path, sync::Arc};
 
 use indicatif::MultiProgress;
-use scheduler::{RepeatingStrategy, Scheduler};
+use scheduler::Scheduler;
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
 

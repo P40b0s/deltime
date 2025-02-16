@@ -1,5 +1,4 @@
 mod usb_device_info;
-
 #[cfg(all(target_os = "windows", feature = "usb"))]
 mod windows;
 #[cfg(all(target_os = "windows", feature = "usb"))]
@@ -12,6 +11,5 @@ mod mountpoints;
 #[cfg(all(target_os = "linux", feature = "usb"))]
 pub use linux::usb_event;
 
-
-pub use usb_device_info::UsbDeviceInfo;
+//pub use usb_device_info::UsbDeviceInfo;
 

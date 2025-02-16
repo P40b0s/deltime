@@ -1,3 +1,4 @@
+//hide process when start
 #![windows_subsystem = "windows"]
 mod structs;
 mod progressbars;
@@ -10,16 +11,16 @@ mod window;
 mod config;
 #[cfg(feature = "beeper")]
 mod beeper;
-use std::{collections::HashMap, path::{Path, PathBuf}, sync::Arc, time::Duration};
-use futures::{task::SpawnExt, StreamExt};
+use std::{collections::HashMap, path::{Path, PathBuf}, sync::Arc};
+use futures::StreamExt;
 use indicatif::MultiProgress;
 use progressbars::{progress_bar_for_datetime, progress_bar_for_interval};
 use scheduler::Scheduler;
-use structs::{Task, TaskWithProgress};
+use structs::TaskWithProgress;
 use config::Config;
 use tasker::Handler;
-use tokio::{runtime::Handle, sync::RwLock};
-use usb::{usb_event, UsbDeviceInfo};
+use tokio::sync::RwLock;
+use usb::usb_event;
 
 
 
@@ -27,28 +28,6 @@ use usb::{usb_event, UsbDeviceInfo};
 async fn main() 
 {
     let _ = logger::StructLogger::new_default();
-    // let (sender, mut receiver) = tokio::sync::mpsc::channel::<UsbDeviceInfo>(1);
-    // //TODO проверить этот вариант, возможно не хочет потому что запускалось из futures::ececutor::block_on
-    // tokio::task::block_in_place(move ||
-    // {
-    //     Handle::current().block_on(async move 
-    //     {
-    //         let r = usb::enumerate_connected_usb(sender).await;
-    //         logger::info!("result from enumerate_connected_usb in main: {:?}", r);
-    //     }); 
-    // });
-    // tokio::spawn(async move
-    // {
-    //     while let Some(stream) = usb_enumerate_receiver.recv().await
-    //     {
-    //         logger::info!("info from receiver: {:?}", stream);
-    //     }
-    // });
-//    loop 
-//    {
-//        tokio::time::sleep(Duration::from_millis(5000)).await;
-//        logger::debug!("report 5000");
-//    }
     let config =  Config::load().await;
     run_process(config).await;
 }
@@ -98,6 +77,7 @@ fn usb_checker(mpb: MultiProgress, tasks:  Arc<RwLock<HashMap<Arc<String>, TaskW
             }
         });
     });
+    
 }
 
 async fn usb_path_worker(mpb: MultiProgress, tasks:  Arc<RwLock<HashMap<Arc<String>, TaskWithProgress>>>, scheduler: Scheduler<Arc<String>>, path: PathBuf)
@@ -120,10 +100,10 @@ async fn usb_path_worker(mpb: MultiProgress, tasks:  Arc<RwLock<HashMap<Arc<Stri
 #[cfg(test)]
 mod tests
 {
-    use std::{borrow::Cow, path::PathBuf, sync::Arc, time::Duration};
+    use std::path::PathBuf;
     use scheduler::RepeatingStrategy;
     use utilites::Date;
-    use crate::{helpers::time_diff, structs::{Task}, config::{FILE_NAME, Config}};
+    use crate::{helpers::time_diff, structs::Task, config::{FILE_NAME, Config}};
 
     #[test]
     fn test_deserialize()
@@ -231,7 +211,7 @@ mod tests
                 },
             ]
         };
-        let r = utilites::serialize(cfg, FILE_NAME, false, utilites::Serializer::Toml);
+        let _ = utilites::serialize(cfg, FILE_NAME, false, utilites::Serializer::Toml);
         //usb test
         let _ = std::fs::File::create_new(name("usb_1"));
         let _ = std::fs::File::create_new(name("usb_2"));
@@ -281,32 +261,5 @@ mod tests
         let r = utilites::serialize(cfg, [flash, "config.toml"].concat(), false, utilites::Serializer::Toml);
         //super::main();
         logger::info!("{:?}", r)
-    }
-    #[test]
-    fn test_test()
-    {
-        let s = String::from("1 2 3 4 5 56");
-        //let v= s.split_whitespace().map(|m| Cow::Borrowed(m)).collect::<Vec<Cow<str>>>();
-        let v: Vec<Cow<str>> = s
-        .split_whitespace()
-        .map(|m| Cow::Borrowed(m))
-        .collect();
-        println!("{}", s);
-        println!("{:?}", &v);
-        for n in 0..4 
-        {
-            let vt = v.clone(); 
-            std::thread::scope(|s| 
-                { 
-                    s.spawn(||
-                    {
-                        for vv in vt
-                        {
-                            println!("{}", vv);
-                        }
-                    });
-                });
-        }
-        std::thread::sleep(Duration::from_millis(5));
     }
 }

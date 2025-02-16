@@ -1,29 +1,10 @@
 use std::{future::Future, pin::Pin, task::{Context, Poll}};
-
 use actually_beep::beep_with_hz_and_millis;
-
-fn play_sound(hz: u32)
-{
-    let middle_e_hz = hz;
-    let a_bit_more_than_a_second_and_a_half_ms = 200;
-    beep_with_hz_and_millis(middle_e_hz, a_bit_more_than_a_second_and_a_half_ms).unwrap();
-}
-
-fn ok_sound()
-{
-    play_sound(1900);
-    play_sound(2600);
-}
-fn error_sound()
-{
-    play_sound(600);
-    play_sound(400);
-    play_sound(100);
-}
 
 enum PlayState
 {
     PlayingOk,
+    #[allow(dead_code)]
     PlayingError,
     Done
 }
@@ -47,6 +28,7 @@ impl Beeper
             state: PlayState::PlayingOk
         }
     }
+    #[allow(dead_code)]
     pub fn error() -> Self
     {
         Self
@@ -98,20 +80,6 @@ impl Future for Beeper
 mod tests
 {
     use crate::beeper::Beeper;
-
-    #[test]
-    fn test_beep()
-    {
-        super::play_sound(1900);
-        super::play_sound(2600);
-    }
-    #[test]
-    fn test_beep2()
-    {
-        super::play_sound(600);
-        super::play_sound(400);
-        super::play_sound(100);
-    }
     #[tokio::test]
     async fn test_async()
     {

@@ -1,5 +1,4 @@
 use std::{pin::Pin, task::{Context, Poll}};
-
 use futures::Stream;
 use tokio::sync::mpsc::Receiver;
 use utilites::Date;
@@ -22,7 +21,7 @@ impl<T> ReceiverStream<T>
     {
         Self { inner: recv }
     }
-
+    #[allow(dead_code)]
     /// Get back the inner `Receiver`.
     pub fn into_inner(self) -> Receiver<T> 
     {
@@ -39,6 +38,7 @@ impl<T> ReceiverStream<T>
     /// receive all items from the stream until `None` is returned.
     ///
     /// [`Permit`]: struct@tokio::sync::mpsc::Permit
+    #[allow(dead_code)]
     pub fn close(&mut self) 
     {
         self.inner.close();
@@ -76,38 +76,5 @@ impl<T> From<Receiver<T>> for ReceiverStream<T>
     fn from(recv: Receiver<T>) -> Self 
     {
         Self::new(recv)
-    }
-}
-
-
-#[derive(Copy, Clone)]
-#[repr(transparent)]
-pub struct UnalignedU64 
-{
-    value: [u8; 8],
-}
-
-impl UnalignedU64 
-{
-    pub fn new(value: u64) -> Self 
-    {
-        Self 
-        {
-            value: u64::to_ne_bytes(value)
-        }
-    }
-    pub fn to_u64(self) -> u64 
-    {
-        u64::from_ne_bytes(self.value)
-    }
-    
-    pub fn from_u8_array(array: &[u8]) -> &[UnalignedU64] 
-    {
-        let len = array.len() / 8;
-        let ptr = array.as_ptr() as *const UnalignedU64;
-        unsafe 
-        {
-            std::slice::from_raw_parts(ptr, len)
-        }
     }
 }

@@ -1,16 +1,9 @@
-use std::{borrow::Cow, hash::{self, BuildHasher, BuildHasherDefault, Hash, Hasher},  path::{Path, PathBuf}};
+use std::{borrow::Cow,  path::{Path, PathBuf}};
 use crate::helpers::time_diff;
 use indicatif::{MultiProgress, ProgressBar};
 use scheduler::RepeatingStrategy;
 use serde::{Deserialize, Serialize, Serializer};
 use utilites::Date;
-
-pub trait DeleteTaskTrait
-{
-    fn get_path(&self) -> &str;
-    fn get_date(&self) -> &Option<Date>;
-    fn get_interval(&self) -> Option<u32>;
-}
 
 #[derive(Deserialize, Serialize, Clone, Debug, Eq)]
 pub struct Task
@@ -161,18 +154,6 @@ impl TaskWithProgress
     {
         self.task.date.clone()
     }
-    // pub fn get_time_diff(&self) -> Option<i64>
-    // {
-    //     if let Some(date) = self.task.date.as_ref()
-    //     {
-    //         let now = Date::now();
-    //         Some(time_diff(&now, date))
-    //     }
-    //     else 
-    //     {
-    //         None
-    //     }
-    // }
     pub fn path_is_exists(&self) -> bool
     {
         std::fs::exists(&self.task.path).is_ok_and(|f| f == true)
@@ -194,10 +175,7 @@ impl TaskWithProgress
     {
         self.pb.set_prefix(prefix);
     }
-    // pub fn set_message(&self, message: impl Into<Cow<'static, str>>)
-    // {
-    //     self.pb.set_message(message);
-    // }
+    
     pub fn print_line<P: AsRef<str>>(&self, message: P)
     {
         self.pb.println(message);

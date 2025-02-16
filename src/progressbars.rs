@@ -45,7 +45,7 @@ pub fn progress_bar_for_interval(mpb: &MultiProgress, repeating: &RepeatingStrat
     pb.with_style(sty)
     
 }
-
+#[allow(dead_code)]
 pub fn set_date_message(pb: &ProgressBar, visible: bool, date: &Date, path: &str)
 {
     let d = date.format(utilites::DateFormat::DotDate);
@@ -61,7 +61,7 @@ pub fn set_date_message(pb: &ProgressBar, visible: bool, date: &Date, path: &str
     pb.set_message(msg);
     pb.set_prefix("⌛");
 }
-
+#[allow(dead_code)]
 pub fn set_interval_message(pb: &ProgressBar, visible: bool, path: &str)
 {
     let msg= if visible

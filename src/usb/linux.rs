@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 use crate::{error::Error, helpers::ReceiverStream};
 use super::usb_device_info::{DeviceInfo, UsbDeviceInfo};
-use futures::{Stream, StreamExt};
+use futures::Stream;
 use udev::{mio::{Events, Interest, Poll, Token}, Device, EventType, MonitorSocket, MonitorSocketIter};
 use utilites::retry_sync;
 
@@ -125,17 +125,6 @@ impl<'a> Into<UsbDeviceInfo> for DeviceInfoHandler<'a>
 }
 
 
-async fn on_usb_insert()
-{
-    if let Ok(poll) = usb_event().as_mut()
-    {
-        while let Some(p) = poll.next().await
-        {
-            logger::info!("{}",p.display())
-        }
-    }
-}
-
 pub fn usb_event() -> Result<impl Stream<Item = PathBuf>, Error> 
 {
     let (sender, receiver) = tokio::sync::mpsc::channel::<PathBuf>(1);
@@ -169,6 +158,8 @@ pub fn usb_event() -> Result<impl Stream<Item = PathBuf>, Error>
                     }
                 }
             }
+            #[allow(unreachable_code)]
+            //use for correct type inference in closure
             return Ok(());
         };
         let res: Result<(), Error> = r();
@@ -251,23 +242,26 @@ impl Polling
 #[cfg(test)]
 mod tests
 {
-    use std::{collections::HashMap, path::PathBuf, sync::Arc, time::Duration};
-
+    use futures::StreamExt;
     use logger::info;
-    use scheduler::Scheduler;
-    use tokio::{sync::RwLock, task::spawn_blocking};
 
     #[tokio::test]
     async fn on_usb_insert()
     {
-        logger::StructLogger::new_default();
-        super::on_usb_insert().await;
+        let _ = logger::StructLogger::new_default();
+        if let Ok(poll) = super::usb_event().as_mut()
+        {
+            while let Some(p) = poll.next().await
+            {
+                logger::info!("{}",p.display())
+            }
+        }
     }
     
     #[test]
     fn test_udev()
     {
-        logger::StructLogger::new_default();
+        let _ = logger::StructLogger::new_default();
         let mut enumerator = udev::Enumerator::new().unwrap();
         for device in enumerator.scan_devices().unwrap() {
             info!("");

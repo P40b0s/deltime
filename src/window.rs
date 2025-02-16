@@ -3,6 +3,7 @@ use winit::event::WindowEvent;
 use winit::event_loop::{ActiveEventLoop, ControlFlow, EventLoop};
 use winit::window::{Window, WindowId};
 
+#[allow(dead_code)]
 #[derive(Default)]
 struct App 
 {
@@ -23,12 +24,12 @@ impl ApplicationHandler for App
         ()
     }
 }
-
+#[allow(dead_code)]
 pub fn start() 
 {
     let event_loop = EventLoop::new().unwrap();
     event_loop.set_control_flow(ControlFlow::Poll);
     event_loop.set_control_flow(ControlFlow::Wait);
     let mut app = App::default();
-    event_loop.run_app(&mut app);
+    let _ = event_loop.run_app(&mut app);
 }

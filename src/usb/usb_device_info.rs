@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
-
+#[allow(dead_code)]
 pub trait DeviceInfo<'a>
 {
     fn valid_usb_device(&self) -> bool;
