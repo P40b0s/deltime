@@ -1,200 +1,110 @@
-mod cli;
+//hide process when start
+#![windows_subsystem = "windows"]
 mod structs;
 mod progressbars;
-use std::time::Duration;
-use cli::Cli;
+mod usb;
+mod error;
+mod tasker;
+mod helpers;
+#[cfg(feature = "window")]
+mod window;
+mod config;
+#[cfg(feature = "beeper")]
+mod beeper;
+use std::{collections::HashMap, path::{Path, PathBuf}, sync::Arc};
+use futures::StreamExt;
 use indicatif::MultiProgress;
 use progressbars::{progress_bar_for_datetime, progress_bar_for_interval};
-use structs::Config;
-use utilites::Date;
-const FILE_NAME: &str = "config.toml";
+use scheduler::Scheduler;
+use structs::TaskWithProgress;
+use config::Config;
+use tasker::Handler;
+use tokio::sync::RwLock;
+use usb::usb_event;
 
 
-fn main() 
+
+#[tokio::main]
+async fn main() 
 {
-    load_config();
+    let _ = logger::StructLogger::new_default();
+    let config =  Config::load().await;
+    run_process(config).await;
 }
 
-fn load_config()
-{
-    if let Some(args_config) = Cli::parse_args()
-    {
-        let cfg: Result<Config, String> = args_config.try_into();
-        if let Ok(r) = cfg
-        {
-            println!("Запущен процесс из аргуменов командной строки");
-            run_process(r);
-        }
-        else 
-        {
-            println!("{}", cfg.err().unwrap());
-            let mut input = String::new();
-            std::io::stdin().read_line(&mut input).expect("Did not enter a correct string");
-        }
-    }
-    else
-    {
-        println!("Аргументы не переданы, или переданы неправильно, попытка запуска процесса из файла конфигурации");
-        let config = utilites::deserialize::<Config, _>(FILE_NAME, false, utilites::Serializer::Toml);
-        if let Ok(cfg) = config
-        {
-            del_file(FILE_NAME);
-            println!("Запущен процесс из файла конфигурации");
-            run_process(cfg);
-        }
-        else 
-        {
-            println!("Ошибка загрузки файла конфигурации {} {}",FILE_NAME, config.err().as_ref().unwrap());
-            let mut input = String::new();
-            std::io::stdin().read_line(&mut input).expect("Did not enter a correct string");
-        }
-    }
-
-}
-
-fn run_process(cfg: Config)
+async fn run_process(cfg: Config)
 {
     let mpb = MultiProgress::default();
-    let mut minutes: u32 = 0;
-    let mut tasks = Vec::with_capacity(cfg.tasks.len());
-    for t in cfg.tasks.iter()
-    {
-        if std::fs::exists(&t.file_path).is_ok_and(|f| f == true)
-        {
-            if let Some(i) = t.del_time_interval.as_ref()
-            {
-                let pb = progress_bar_for_interval(&mpb, t.repeat, t.visible, &t.file_path, *i);
-                tasks.push((t, pb)); 
-            }
-            if let Some(d) = t.del_time.as_ref()
-            {
-                let now = Date::now();
-                let target = time_diff(&now, d);
-                let pb = progress_bar_for_datetime(&mpb, t.visible, &t.file_path, d, target as u32);
-                tasks.push((t, pb)); 
-            }
-        }
-        else 
-        {
-            println!("Ошибка, файл {} не существует, задача выполнена не будет", &t.file_path);
-        }
-    }
-    while tasks.len() > 0
-    {
-        let mut del_tasks = Vec::new();
-        for t in &tasks
-        {
-            if let Some(interval) = t.0.del_time_interval.as_ref()
-            {
-                if minutes != 0
-                {
-                    t.1.inc(1);
-                    if  minutes % interval == 0
-                    {
-                        if t.0.repeat
-                        {
-                            t.1.reset();
-                        }
-                        else 
-                        {
-                            t.1.finish();
-                        }
-                        if del_file(&t.0.file_path) && !t.0.repeat
-                        {
-                            del_tasks.push(t.0.file_path.clone());
-                            t.1.set_prefix("✅");
-                        }
-                        else 
-                        {
-                            t.1.set_prefix("❌");
-                        }
-                    }
-                }
-            }
-            else if let Some(checked_date) = t.0.del_time.as_ref()
-            {
-                let current_date = Date::now();
-                let diff = time_diff(&current_date, checked_date);
-                if diff.is_negative()
-                {
-                    if del_file(&t.0.file_path)
-                    {
-                        t.1.set_prefix("✅");
-                        del_tasks.push(t.0.file_path.clone());
-                        t.1.finish();
-                    }
-                    else 
-                    {
-                        t.1.set_prefix("❌");
-                    }
-                }
-                else 
-                {
-                    t.1.set_position(t.1.length().unwrap() - diff as u64);  
-                }
-            }
-        }
-        for d in del_tasks
-        {
-            tasks.retain(|r| r.0.file_path != d);
-        }
-        if tasks.len() > 0
-        {
-            std::thread::sleep(Duration::from_secs(60));
-        }
-        minutes += 1;
-    }
+    let tasks: Arc<RwLock<HashMap<Arc<String>, TaskWithProgress>>> = Arc::new(RwLock::new(HashMap::new()));
+    let scheduler: Scheduler<Arc<String>> = Scheduler::new();
+    cfg.add_tasks(mpb.clone(), tasks.clone(), scheduler.clone()).await;
+    usb_checker(mpb.clone(), tasks.clone(), scheduler.clone());
+    let handler = Handler::new(tasks);
+    //hide process when start
+    #[cfg(all(target_os = "linux", feature = "window"))]
+    window::start();
+    scheduler.run(handler).await;
 }
 
-
-
-///Получаем отрицательное значение если проверяемая дата меньше текущей
-fn time_diff(current_date: &Date, checked_date: &Date) -> i64
-{
-    checked_date.as_naive_datetime().and_utc().timestamp() - current_date.as_naive_datetime().and_utc().timestamp()
+#[cfg(all(target_os = "linux", feature = "usb"))]
+fn usb_checker(mpb: MultiProgress, tasks:  Arc<RwLock<HashMap<Arc<String>, TaskWithProgress>>>, scheduler: Scheduler<Arc<String>>)
+{   
+    tokio::spawn(async move 
+    {
+        if let Ok(stream) = usb_event().as_mut()
+        {
+            while let Some(path) = stream.next().await
+            {
+                usb_path_worker(mpb.clone(), tasks.clone(), scheduler.clone(), path).await;
+            }
+        }
+    });
 }
 
-fn del_file(path: &str) -> bool
-{
-    let metadata = std::fs::metadata(path);
-    if let Ok(md) = metadata
+///correctly working if wrapping into futures executor
+#[cfg(all(target_os = "windows", feature = "usb"))]
+fn usb_checker(mpb: MultiProgress, tasks:  Arc<RwLock<HashMap<Arc<String>, TaskWithProgress>>>, scheduler: Scheduler<Arc<String>>)
+{   
+    tokio::task::spawn_blocking(move ||
     {
-        if md.is_file()
+        futures::executor::block_on(async 
         {
-            let del = std::fs::remove_file(path);
-            return if del.is_ok()
+            if let Ok(stream) = usb_event().as_mut()
             {
-                true
+                while let Some(path) = stream.next().await
+                {
+                    usb_path_worker(mpb.clone(), tasks.clone(), scheduler.clone(), path).await;
+                }
             }
-            else 
-            {
-                false
-            };
-        }
-        if md.is_dir()
-        {
-            let del = std::fs::remove_dir_all(path);
-            return if del.is_ok()
-            {
-                true
-            }
-            else 
-            {
-                false
-            };
-        }
-    }
-    return false;
+        });
+    });
     
+}
+
+async fn usb_path_worker(mpb: MultiProgress, tasks:  Arc<RwLock<HashMap<Arc<String>, TaskWithProgress>>>, scheduler: Scheduler<Arc<String>>, path: PathBuf)
+{
+    let path = Path::new(&path).join(config::FILE_NAME);
+    //logger::debug!("usb path: {}", path.display());
+    let config = Config::load_from_path(&path);
+    if let Ok(cfg) = config
+    {
+        let _ = mpb.println(format!("Файл конфигурации успешно загружен с найденого накопителя {}", path.display()));
+        cfg.add_tasks(mpb, tasks, scheduler).await
+    }
+    else 
+    {
+        logger::error!("Отсутсвует файл {} -> {}", path.display(), config.err().unwrap());
+    }
 }
 
 
 #[cfg(test)]
 mod tests
 {
+    use std::path::PathBuf;
+    use scheduler::RepeatingStrategy;
     use utilites::Date;
-
-    use crate::{structs::{Config, Task}, time_diff, FILE_NAME};
+    use crate::{helpers::time_diff, structs::Task, config::{FILE_NAME, Config}};
 
     #[test]
     fn test_deserialize()
@@ -217,58 +127,139 @@ mod tests
     #[test]
     fn test_serialize()
     {
+        let path = "/home/phobos/projects/rust/deltime/tests/";
+        let flash = "/run/media/phobos/x/";
+        //let path = "/hard/xar/projects/rust/deltime/tests/";
+        let name = |n: &str|
+        {
+            [path, n].concat()
+        };
         let _ = logger::StructLogger::new_default();
-        let _ = std::fs::File::create_new("/hard/xar/projects/tests/1");
-        let _ = std::fs::File::create_new("/hard/xar/projects/tests/2");
-        let _ = std::fs::File::create_new("/hard/xar/projects/tests/3");
-        let _ = std::fs::File::create_new("/hard/xar/projects/tests/4");
-        let _ = std::fs::create_dir("/hard/xar/projects/tests/5");
+        let _ = std::fs::File::create_new(name("1"));
+        let _ = std::fs::File::create_new(name("2"));
+        let _ = std::fs::File::create_new(name("3"));
+        let _ = std::fs::File::create_new(name("4"));
+        let _ = std::fs::File::create_new(name("expired"));
+        let _ = std::fs::create_dir(name("5"));
+        let _ = std::fs::File::create_new(name("5/delme_by_extension.delme"));
+        let _ = std::fs::File::create_new(name("5/not_delme.test"));
+        
         let cfg = Config
         {
                 tasks: vec![
                 Task
                 {
-                    file_path: "/hard/xar/projects/tests/1".to_owned(),
-                    del_time_interval: Some(2),
-                    del_time: None,
-                    repeat: false,
+                    path: PathBuf::from(name("1")),
+                    mask: None,
+                    interval: Some(1),
+                    date: None,
+                    repeat: RepeatingStrategy::Once,
                     visible: true
                 },
                 Task
                 {
-                    file_path: "/hard/xar/projects/tests/2".to_owned(),
-                    del_time_interval: None,
-                    del_time: Some(Date::now().add_minutes(3)),
-                    repeat: false,
+                    path: PathBuf::from(name("2")),
+                    mask: None,
+                    interval: None,
+                    date: Some(Date::now().add_minutes(3)),
+                    repeat: RepeatingStrategy::Once,
                     visible: true
                 },
                 Task
                 {
-                    file_path: "/hard/xar/projects/tests/3".to_owned(),
-                    del_time_interval: None,
-                    del_time: Some(Date::now().add_minutes(6)),
-                    repeat: false,
+                    path: PathBuf::from(name("3")),
+                    mask: None,
+                    interval: None,
+                    date: Some(Date::now().add_minutes(6)),
+                    repeat: RepeatingStrategy::Once,
                     visible: true
                 },
                 Task
                 {
-                    file_path: "/hard/xar/projects/tests/4".to_owned(),
-                    del_time_interval: Some(2),
-                    del_time: None,
-                    repeat: true,
+                    path: PathBuf::from(name("4")),
+                    mask: None,
+                    interval: None,
+                    date: Some(Date::now().add_minutes(3)),
+                    repeat: RepeatingStrategy::Dialy,
                     visible: false
                 },
                 Task
                 {
-                    file_path: "/hard/xar/projects/tests/5".to_owned(),
-                    del_time_interval: Some(1),
-                    del_time: None,
-                    repeat: false,
+                    path: PathBuf::from(name("5")),
+                    mask: Some("*.delme".into()),
+                    interval: Some(3),
+                    date: None,
+                    repeat: RepeatingStrategy::Forever,
+                    visible: true
+                },
+                Task
+                {
+                    path: PathBuf::from(name("not_exists")),
+                    mask: None,
+                    interval: Some(1),
+                    date: None,
+                    repeat: RepeatingStrategy::Once,
+                    visible: true
+                },
+                Task
+                {
+                    path: PathBuf::from(name("expired")),
+                    mask: None,
+                    interval: None,
+                    date: Some(Date::now().sub_minutes(3)),
+                    repeat: RepeatingStrategy::Once,
                     visible: true
                 },
             ]
         };
-        let r = utilites::serialize(cfg, FILE_NAME, false, utilites::Serializer::Toml);
+        let _ = utilites::serialize(cfg, FILE_NAME, false, utilites::Serializer::Toml);
+        //usb test
+        let _ = std::fs::File::create_new(name("usb_1"));
+        let _ = std::fs::File::create_new(name("usb_2"));
+        let _ = std::fs::File::create_new(name("usb_3"));
+        let _ = std::fs::File::create_new(name("usb_4"));
+        let cfg = Config
+        {
+                tasks: vec![
+                Task
+                {
+                    path: PathBuf::from(name("usb_1")),
+                    mask: None,
+                    interval: Some(2),
+                    date: None,
+                    repeat: RepeatingStrategy::Once,
+                    visible: true
+                },
+                Task
+                {
+                    path: PathBuf::from(name("usb_2")),
+                    mask: None,
+                    interval: None,
+                    date: Some(Date::now().add_minutes(3)),
+                    repeat: RepeatingStrategy::Once,
+                    visible: true
+                },
+                Task
+                {
+                    path: PathBuf::from(name("usb_3")),
+                    mask: None,
+                    interval: None,
+                    date: Some(Date::now().add_minutes(6)),
+                    repeat: RepeatingStrategy::Once,
+                    visible: true
+                },
+                Task
+                {
+                    path: PathBuf::from(name("usb_4")),
+                    mask: None,
+                    interval: None,
+                    date: Some(Date::now().add_minutes(3)),
+                    repeat: RepeatingStrategy::Dialy,
+                    visible: false
+                },
+            ]
+        };
+        let r = utilites::serialize(cfg, [flash, "config.toml"].concat(), false, utilites::Serializer::Toml);
         //super::main();
         logger::info!("{:?}", r)
     }

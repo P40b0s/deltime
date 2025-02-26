@@ -1,26 +1,61 @@
-use super::cli::Cli;
-use serde::{Deserialize, Serialize};
+use std::{borrow::Cow,  path::{Path, PathBuf}};
+use crate::helpers::time_diff;
+use indicatif::{MultiProgress, ProgressBar};
+use scheduler::RepeatingStrategy;
+use serde::{Deserialize, Serialize, Serializer};
 use utilites::Date;
 
-#[derive(Deserialize, Serialize, Clone, Debug)]
+#[derive(Deserialize, Serialize, Clone, Debug, Eq)]
 pub struct Task
 {
-    pub file_path: String,
+    pub path: PathBuf,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub del_time_interval: Option<u32>,
+    pub mask: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub interval: Option<u32>,
     #[serde(deserialize_with="deserialize_data")]
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub del_time: Option<Date>,
-    #[serde(default)]
-    pub repeat: bool,
+    pub date: Option<Date>,
+    #[serde(serialize_with="serialize_repeating")]
+    #[serde(deserialize_with="deserialize_repeating")]
+    pub repeat: RepeatingStrategy,
     #[serde(default)]
     pub visible: bool
 }
-#[derive(Deserialize, Serialize, Clone, Debug)]
-pub struct Config 
+
+impl PartialEq for Task
 {
-    pub tasks: Vec<Task>
+    fn eq(&self, other: &Self) -> bool 
+    {
+        &self.path == &other.path
+        && &self.mask == &other.mask
+    }
 }
+
+impl Task
+{
+    pub fn get_path(&self) -> &Path
+    {
+        &self.path
+    }
+    pub fn get_str_path(&self) -> &str
+    {
+        &self.path.as_os_str().to_str().unwrap_or_default()
+    }
+    pub fn get_hash(&self) -> String
+    {
+        let mut hasher = blake3::Hasher::new();
+        hasher.update(self.get_str_path().as_bytes());
+        if let Some(mask) = self.mask.as_ref()
+        {
+            hasher.update(mask.as_bytes());
+        }
+        let res = hasher.finalize();
+        let string = format!("{}", res.to_hex());
+        string
+    }
+}
+
 
 fn deserialize_data<'de, D>(deserializer: D) -> Result<Option<Date>, D::Error>
 where
@@ -37,60 +72,304 @@ where
     }
 }
 
-impl TryInto<Config> for Cli
+fn deserialize_repeating<'de, D>(deserializer: D) -> Result<RepeatingStrategy, D::Error>
+where
+    D: serde::de::Deserializer<'de>,
 {
-    type Error = String;
-    fn try_into(self) -> Result<Config, Self::Error> 
+    let s: String = serde::de::Deserialize::deserialize(deserializer)?;
+    match s.as_str()
     {
-        let mut date: Option<Date> = None;
-        if self.date.is_none() && self.interval.is_none()
+        "monthly" => Ok(RepeatingStrategy::Monthly),
+        "dialy" => Ok(RepeatingStrategy::Dialy),
+        "forever" => Ok(RepeatingStrategy::Forever),
+        "once" => Ok(RepeatingStrategy::Once),
+        _ => Err(serde::de::Error::custom(["Ошибка, опции `" , &s, "` не существует"].concat()))
+    }
+}
+
+fn serialize_repeating<S>(repeat: &RepeatingStrategy, serializer: S) -> Result<S::Ok, S::Error> 
+where 
+    S: Serializer,
+{
+    serializer.serialize_str(&repeat.to_string())
+}
+
+#[derive(Clone, Debug)]
+pub struct TaskWithProgress
+{
+    task: Task,
+    pb: ProgressBar
+}
+impl PartialEq for TaskWithProgress
+{
+    fn eq(&self, other: &Self) -> bool 
+    {
+        &self.task == &other.task    
+    }
+}
+impl TaskWithProgress
+{
+    pub fn new(task: Task, mpb: &MultiProgress) -> Self
+    {
+        let pb = if std::fs::exists(&task.path).is_ok_and(|f| f == true)
         {
-            return Err("Не переданы аргументы времени, необходимо передать -i или -d".to_string());
-        }
-        if self.date.is_some() && self.interval.is_some()
-        {
-            return Err("Можно передеть только один временной параметр или -i или -d".to_string());
-        }
-        let interval = self.interval;
-        let repeat = if interval.is_some() && self.repeat
-        {
-            self.repeat
-        }
-        else
-        {
-            false
-        };
-        if let Some(d) = self.date
-        {
-            if let Some(d) = Date::parse(d)
+            if let Some(d) = task.date.as_ref()
             {
-                date = Some(d);
-            }   
-            else 
-            {
-                return Err("Ошибка формата даты в аргументе -d".to_string());
+                let now = Date::now();
+                let target = time_diff(&now, &d);
+                let pb = crate::progress_bar_for_datetime(mpb, target as u32);
+                Self::set_date_message(&pb, task.visible, d, &task.path,task.mask.as_ref(), &task.repeat);
+                pb
             }
-        }
-        if std::fs::exists(&self.file).is_ok_and(|f| f == true)
-        {
-            return  Ok(Config
+            else if let Some(i) = task.interval
             {
-                tasks: vec![
-                    Task
-                    {
-                        file_path: self.file,
-                        del_time: date,
-                        del_time_interval: interval,
-                        repeat,
-                        visible: self.visible
-                    }
-                ]
-            })
+                let pb = crate::progress_bar_for_interval(mpb, &task.repeat, i);
+                Self::set_interval_message(&pb, task.visible, &task.path,task.mask.as_ref(), &task.repeat);
+                pb
+            }
+            else
+            {
+                ProgressBar::hidden()
+            }
         }
         else 
         {
-            return Err("Ошибка, указанный файл не существует".to_string());
+            let pb = crate::progress_bar_for_interval(mpb, &RepeatingStrategy::Once,0);
+            pb.set_prefix("❌");
+            pb.set_message(["файл ", task.get_str_path(), " не существует"].concat());
+            pb.finish();
+            pb
         };
+        Self
+        {
+            task,
+            pb
+        }
+    }
+    pub fn get_interval(&self) -> Option<u32>
+    {
+        self.task.interval
+    }
+    pub fn get_date(&self) -> Option<Date>
+    {
+        self.task.date.clone()
+    }
+    pub fn path_is_exists(&self) -> bool
+    {
+        std::fs::exists(&self.task.path).is_ok_and(|f| f == true)
+    }
+    pub fn get_str_path(&self) -> &str
+    {
+        &self.task.get_str_path()
+    }
+    pub fn get_path(&self) -> &Path
+    {
+        &self.task.get_path()
+    }
+    
+    pub fn get_strategy(&self) -> &RepeatingStrategy
+    {
+        &self.task.repeat
+    }
+    pub fn set_prefix(&self, prefix: impl Into<Cow<'static, str>>)
+    {
+        self.pb.set_prefix(prefix);
+    }
+    
+    pub fn print_line<P: AsRef<str>>(&self, message: P)
+    {
+        self.pb.println(message);
+    }
+    ///finish progressbar work
+    pub fn finish(&self)
+    {
+        self.set_prefix("✅");
+        self.pb.finish();
+    }
+    pub fn finish_with_err<P: AsRef<str>>(&self, err: P)
+    {
+        self.set_prefix("❌");
+        self.print_line(err);
+        self.pb.finish();
+    }
+    ///reset progressbar
+    pub fn reset(&self)
+    {
+        self.pb.reset();
+    }
+    pub fn update_progress(&self, current: u64, len: u64)
+    {
+        if let Some(_) = self.task.date.as_ref()
+        {
+            if self.pb.length().unwrap_or_default() != len as u64
+            {
+                self.pb.set_length(len as u64);
+                let new_date = self.task.date.as_ref().unwrap().clone().add_seconds(len as i64);
+                Self::set_date_message(&self.pb, self.task.visible, &new_date, self.get_path(), self.task.mask.as_ref(), self.get_strategy());
+            }
+            self.pb.set_position(current);
+        }
+        else if let Some(_) = self.task.interval.as_ref()
+        {
+            self.pb.set_length(len as u64);
+            self.pb.set_position(current);  
+        }
+    }
+    pub fn update_progress_with_cycle(&mut self, current: u64, len: u64)
+    {
+        self.reset();
+        if self.task.date.is_some()
+        {
+            self.pb.set_length(len as u64);
+            self.pb.set_position(current);
+            let new_date = self.task.date.as_ref().unwrap().clone().add_seconds(len as i64);
+            Self::set_date_message(&self.pb, self.task.visible, &new_date, self.get_path(), self.task.mask.as_ref(), self.get_strategy());
+            self.task.date = Some(new_date);
+        }
+    }
+
+    pub async fn del_file(&self) -> Result<(), String>
+    {
+        let path = self.get_path();
+        let str_path = self.get_str_path();
+        if !self.path_is_exists()
+        {
+            return Err(["Файл `", str_path, "` не найден"].concat());
+        }
+        let metadata = tokio::fs::metadata(path).await;
+        if let Ok(md) = metadata
+        {
+            if md.is_file()
+            {
+                let del = tokio::fs::remove_file(path).await;
+                return if del.is_ok()
+                {
+                    Ok(()) 
+                }
+                else 
+                {
+                    match del.err().unwrap().kind()
+                    {
+                        tokio::io::ErrorKind::PermissionDenied | tokio::io::ErrorKind::ResourceBusy =>
+                            Err(["Нет прав или файл `", str_path, "` занят другим приложением"].concat()),
+                        tokio::io::ErrorKind::NotFound =>
+                            Err(["Файл `", str_path, "` не найден"].concat()),
+                        _=> Ok(())
+                    }
+                };
+            }
+            if md.is_dir()
+            {
+                if let Some(mask ) = self.task.mask.as_ref()
+                {
+                    return if let Ok(files) = utilites::io::get_files_by_mask(path, mask).await
+                    {
+                        for f in files
+                        {
+                            let _ = tokio::fs::remove_file(&f).await;
+                        }
+                        Ok(())
+                    }
+                    else 
+                    {
+                        Err(["При операции c `", str_path, "` произошла ошибка"].concat())
+                    }
+                }
+                else 
+                {
+                    let del = tokio::fs::remove_dir_all(path).await;
+                    return if del.is_ok()
+                    {
+                        Ok(())   
+                    }
+                    else 
+                    {
+                        match del.err().unwrap().kind()
+                        {
+                            tokio::io::ErrorKind::PermissionDenied | tokio::io::ErrorKind::ResourceBusy =>
+                                Err(["Нет прав или файл `", str_path, "` занят другим приложением"].concat()),
+                            tokio::io::ErrorKind::NotFound =>
+                                Err(["Файл `", str_path, "` не найден"].concat()),
+                            _=> Ok(())
+                        }
+                    };
+                }
+            }
+        }
+        Err("Ошибка получения метадаты".to_owned())
         
+    }
+
+    fn set_date_message<P: AsRef<Path>>(pb: &ProgressBar, visible: bool, date: &Date, path: P, mask: Option<&String>, strategy: &RepeatingStrategy)
+    {
+        let d = date.format(utilites::DateFormat::DotDate);
+        let t = date.format(utilites::DateFormat::Time);
+        let path = path.as_ref();
+        let path = path.as_os_str().to_str().unwrap_or_default();
+        let msg= if visible
+        {
+            if let Some(m) = mask
+            {
+                [&d, " ", &t, " -> ", path, " (", m, ")"].concat()
+            }
+            else
+            {
+                [&d, " ", &t, " -> ", path].concat()
+            }
+        }
+        else
+        {
+            [&d, " ", &t].concat()
+        };
+        pb.set_message(msg);
+        if Self::is_run_forever(strategy)
+        {
+            pb.set_prefix("🔃");
+        }
+        else 
+        {
+            pb.set_prefix("⌛");
+        }
+    }
+
+    fn set_interval_message<P: AsRef<Path>>(pb: &ProgressBar, visible: bool, path: P, mask: Option<&String>, strategy: &RepeatingStrategy)
+    {
+        let path = path.as_ref();
+        let path = path.as_os_str().to_str().unwrap_or_default();
+        let msg= if visible
+        {
+            if let Some(m) = mask
+            {
+                [" -> ", path, " (", m, ")"].concat()
+            }
+            else
+            {
+                [" -> ", path].concat()
+            }
+        }
+        else
+        {
+            "".to_owned()
+        };
+        pb.set_message(msg);
+        if Self::is_run_forever(strategy)
+        {
+            pb.set_prefix("🔃");
+        }
+        else 
+        {
+            pb.set_prefix("⌛");
+        }
+    }
+    pub fn is_run_forever(strategy: &RepeatingStrategy) -> bool
+    {
+        if let RepeatingStrategy::Forever | RepeatingStrategy::Dialy | RepeatingStrategy::Monthly = *strategy
+        {
+            true
+        }
+        else 
+        {
+            false    
+        }
     }
 }
