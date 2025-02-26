@@ -60,6 +60,7 @@ fn usb_checker(mpb: MultiProgress, tasks:  Arc<RwLock<HashMap<Arc<String>, TaskW
         }
     });
 }
+
 ///correctly working if wrapping into futures executor
 #[cfg(all(target_os = "windows", feature = "usb"))]
 fn usb_checker(mpb: MultiProgress, tasks:  Arc<RwLock<HashMap<Arc<String>, TaskWithProgress>>>, scheduler: Scheduler<Arc<String>>)

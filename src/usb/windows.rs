@@ -76,6 +76,8 @@ fn convert_stream(inbond_stream: impl Stream<Item = Result<NewProcessEvent, WMIE
     });
     s
 }
+/// wrong implementation Stream for async_filtered_notification? code is blocking  
+/// working only with futures::executor::block_on
 pub fn usb_event() -> Result<Pin<Box<impl Stream<Item = std::path::PathBuf>>>, Error> 
 {
     let com_con = COMLibrary::new()?;
@@ -83,6 +85,7 @@ pub fn usb_event() -> Result<Pin<Box<impl Stream<Item = std::path::PathBuf>>>, E
     let mut filters = HashMap::<String, FilterValue>::new();
     let value = FilterValue::is_a::<Disks>()?;
     filters.insert("TargetInstance".to_owned(), value);
+   
     wmi_con.async_filtered_notification::<NewProcessEvent>(&filters, Some(Duration::from_secs(2)))
         .map_err(|e| Error::Wmi(e))
         .and_then(|s| Ok(Box::pin(convert_stream(s))))
